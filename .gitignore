@@ -1,0 +1,11 @@
+.env
+.env.local
+.env.*.local
+.DS_Store
+Thumbs.db
+node_modules/
+npm-debug.log*
+.vscode/settings.json
+.idea/
+.vercel/
+.netlify/

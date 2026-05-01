@@ -1,0 +1,309 @@
+/* ============================================
+   UNEXCA Portal Web — Layout (layout.css)
+   ============================================
+   Contiene: navbar, footer, hero, secciones de
+   inicio, acceso rápido y redes sociales.
+   ============================================ */
+
+/* ─── NAVBAR ──────────────────────────────── */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--color-primario-dark);
+  height: var(--alto-navbar);
+}
+
+.navbar-contenido {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-menu {
+  display: flex;
+  gap: var(--s6);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link {
+  color: var(--color-blanco);
+  text-decoration: none;
+  font-weight: 500;
+  padding: var(--s2) 0;
+  border-bottom: 2px solid transparent;
+  transition: border-color var(--t);
+}
+
+.nav-link:hover {
+  border-bottom-color: var(--color-blanco);
+}
+
+.navbar-acciones {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+}
+
+.navbar-usuario {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+}
+
+.navbar-saludo {
+  color: var(--color-blanco);
+  font-size: var(--texto-sm);
+}
+
+/* ─── Botón hamburguesa ───────────────────── */
+
+.navbar-hamburguesa {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.navbar-hamburguesa span {
+  display: block;
+  width: 25px;
+  height: 3px;
+  background: var(--color-blanco);
+  margin: 5px 0;
+  transition: transform var(--t), opacity var(--t);
+}
+
+/* ─── Menú móvil (<768px) ─────────────────── */
+
+@media (max-width: 767px) {
+  .navbar-hamburguesa {
+    display: block;
+  }
+
+  .navbar-menu {
+    position: fixed;
+    top: var(--alto-navbar);
+    left: 0;
+    width: 100%;
+    height: calc(100vh - var(--alto-navbar));
+    background: var(--color-primario-dark);
+    flex-direction: column;
+    padding: var(--s6);
+    transform: translateX(-100%);
+    transition: transform var(--t-lenta);
+    gap: 0;
+  }
+
+  .navbar-menu--abierto {
+    transform: translateX(0);
+  }
+
+  .navbar-menu li {
+    width: 100%;
+  }
+
+  .nav-link {
+    font-size: var(--texto-lg);
+    padding: var(--s4) 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* ─── FOOTER ───────────────────────────────── */
+
+.footer {
+  background: var(--color-primario-dark);
+  color: var(--color-blanco);
+  padding: var(--s12) 0 0;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s8);
+}
+
+@media (min-width: 768px) {
+  .footer-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.footer-marca p {
+  margin-top: var(--s4);
+  font-size: var(--texto-sm);
+  opacity: 0.8;
+}
+
+.footer-redes h4,
+.footer-links h4 {
+  font-size: var(--texto-lg);
+  margin-bottom: var(--s4);
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: var(--s2);
+}
+
+.footer-links a {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: color var(--t);
+}
+
+.footer-links a:hover {
+  color: var(--color-blanco);
+}
+
+.footer-copyright {
+  margin-top: var(--s8);
+  padding: var(--s4) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  font-size: var(--texto-sm);
+  opacity: 0.7;
+}
+
+/* ─── HERO SECTION ────────────────────────── */
+
+.hero {
+  padding: var(--s16) 0;
+  text-align: center;
+  background: linear-gradient(135deg, var(--color-primario-dark), var(--color-primario));
+}
+
+.hero * {
+  color: var(--color-blanco);
+}
+
+.hero-logo {
+  max-width: 120px;
+  margin-bottom: var(--s6);
+}
+
+.hero h1 {
+  font-size: var(--texto-4xl);
+  margin-bottom: var(--s4);
+}
+
+.hero p {
+  font-size: var(--texto-lg);
+  max-width: 600px;
+  margin: 0 auto var(--s8);
+  opacity: 0.9;
+}
+
+.hero-acciones {
+  display: flex;
+  gap: var(--s4);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ─── HOME SECTIONS ───────────────────────── */
+
+.seccion-inicio {
+  padding: var(--s12) 0;
+}
+
+.seccion-inicio h2 {
+  text-align: center;
+  font-size: var(--texto-2xl);
+  margin-bottom: var(--s8);
+  color: var(--color-primario-dark);
+}
+
+.seccion-inicio:nth-child(even) {
+  background: var(--color-fondo);
+}
+
+/* ─── ACCESO RÁPIDO ───────────────────────── */
+
+.acceso-rapido-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s4);
+}
+
+@media (min-width: 768px) {
+  .acceso-rapido-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.acceso-rapido-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s6);
+  background: var(--color-fondo-card);
+  border-radius: var(--radio-lg);
+  border: 1px solid var(--color-borde);
+  text-decoration: none;
+  color: var(--color-texto-base);
+  transition: all var(--t);
+}
+
+.acceso-rapido-item:hover {
+  box-shadow: var(--sombra-md);
+  transform: translateY(-2px);
+}
+
+.acceso-rapido-item .icono {
+  font-size: 2rem;
+  margin-bottom: var(--s2);
+}
+
+.acceso-rapido-item span {
+  font-size: var(--texto-sm);
+  font-weight: 500;
+}
+
+/* ─── REDES SOCIALES ──────────────────────── */
+
+.redes-sociales {
+  display: flex;
+  gap: var(--s4);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Botón secundario adaptado al navbar oscuro */
+.navbar .btn-secundario {
+  color: var(--color-blanco);
+  border-color: var(--color-blanco);
+}
+
+.navbar .btn-secundario:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-blanco);
+}
+
+/* Botón secundario adaptado a fondos oscuros */
+.hero .btn-secundario {
+  color: var(--color-blanco);
+  border-color: var(--color-blanco);
+}
+
+.hero .btn-secundario:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-blanco);
+}

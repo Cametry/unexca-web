@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portal oficial de la Universidad Nacional Experimental de la Gran Caracas">
+  <title>UNEXCA — Portal Institucional</title>
+  <link rel="icon" href="/assets/img/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+</head>
+
+<body>
+
+  <div id="spinner" class="spinner" aria-hidden="true"></div>
+  <div id="navbar-placeholder"></div>
+
+  <main class="inicio-pagina">
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <div class="container">
+        <img src="/assets/img/logo.png" alt="UNEXCA" class="hero-logo">
+        <h1>Portal Institucional</h1>
+        <p>Bienvenido al portal oficial de la Universidad Nacional Experimental de la Gran Caracas. Accede a información
+          académica, documentos y servicios universitarios.</p>
+        <div class="hero-acciones">
+          <a href="/pages/wiki/" class="btn btn-primario">Ver Wiki</a>
+          <a href="/pages/faq/" class="btn btn-secundario">Ver FAQ</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ÚLTIMAS NOTICIAS -->
+    <section class="seccion-inicio" id="seccion-noticias">
+      <div class="container">
+        <h2>Últimas Noticias</h2>
+        <div id="noticias-grid" class="grid-tarjetas">
+          <!-- Cargado dinámicamente desde Supabase -->
+        </div>
+        <div id="noticias-error" class="alerta alerta-info" style="display:none"></div>
+      </div>
+    </section>
+
+    <!-- PRÓXIMOS EVENTOS -->
+    <section class="seccion-inicio" id="seccion-eventos">
+      <div class="container">
+        <h2>Próximos Eventos</h2>
+        <div id="eventos-lista">
+          <!-- Cargado dinámicamente desde Supabase -->
+        </div>
+        <div id="eventos-error" class="alerta alerta-info" style="display:none"></div>
+      </div>
+    </section>
+
+    <!-- ACCESO RÁPIDO -->
+    <section class="seccion-inicio">
+      <div class="container">
+        <h2>Acceso Rápido</h2>
+        <div class="acceso-rapido-grid">
+          <a href="/pages/wiki/" class="acceso-rapido-item">
+            <span class="icono">📚</span>
+            <span>Wiki</span>
+          </a>
+          <a href="/pages/faq/" class="acceso-rapido-item">
+            <span class="icono">❓</span>
+            <span>FAQ</span>
+          </a>
+          <a href="/pages/noticias/" class="acceso-rapido-item">
+            <span class="icono">📰</span>
+            <span>Noticias</span>
+          </a>
+          <a href="/pages/documentos/" class="acceso-rapido-item">
+            <span class="icono">📄</span>
+            <span>Documentos</span>
+          </a>
+          <a href="/pages/calendario/" class="acceso-rapido-item">
+            <span class="icono">📅</span>
+            <span>Calendario</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <script type="module">
+    import { supabase } from '/assets/js/supabase-client.js';
+    import { getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
+    import { formatearFecha, truncar, mostrarCarga, incluirComponente, setAnioActual } from '/assets/js/utils.js';
+
+    async function init() {
+      // 1. Cargar componentes
+      await incluirComponente('#navbar-placeholder', '/components/navbar.html');
+      await incluirComponente('#footer-placeholder', '/components/footer.html');
+
+      // 2. Actualizar navbar según sesión
+      await actualizarNavbar();
+
+      // 3. Año actual en footer
+      setAnioActual();
+
+      // 4. Cargar contenido
+      mostrarCarga(true);
+      await Promise.all([
+        cargarNoticias(),
+        cargarEventos(),
+        cargarRedesSociales()
+      ]);
+      mostrarCarga(false);
+    }
+
+    async function cargarNoticias() {
+      const { data, error } = await supabase
+        .from('noticias')
+        .select('id, titulo, resumen, portada_url, categoria, publicado_en')
+        .eq('publicado', true)
+        .eq('destacado', true)
+        .order('publicado_en', { ascending: false })
+        .limit(3);
+
+      const grid = document.getElementById('noticias-grid');
+      const errorEl = document.getElementById('noticias-error');
+
+      if (error) {
+        if (errorEl) {
+          errorEl.textContent = 'Error al cargar noticias. Intenta de nuevo más tarde.';
+          errorEl.style.display = 'block';
+        }
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        if (errorEl) {
+          errorEl.textContent = 'No hay noticias destacadas en este momento.';
+          errorEl.style.display = 'block';
+        }
+        return;
+      }
+
+      if (grid) {
+        grid.innerHTML = data.map(n => `
+          <a href="/pages/noticias/noticia.html?id=${n.id}" class="card" style="text-decoration:none;color:inherit">
+            ${n.portada_url ? `<img src="${n.portada_url}" alt="${n.titulo}" class="card-imagen" loading="lazy">` : ''}
+            <div class="card-body">
+              <span class="badge badge-rol badge-estudiante" style="margin-bottom:var(--s2);display:inline-block">${n.categoria}</span>
+              <h3 class="card-titulo">${n.titulo}</h3>
+              <p class="card-texto">${truncar(n.resumen, 120)}</p>
+              <small style="color:var(--color-texto-muted)">${formatearFecha(n.publicado_en)}</small>
+            </div>
+          </a>
+        `).join('');
+      }
+    }
+
+    async function cargarEventos() {
+      const hoy = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('calendario_eventos')
+        .select('titulo, descripcion, fecha_inicio, fecha_fin, tipo, color')
+        .gte('fecha_inicio', hoy)
+        .order('fecha_inicio', { ascending: true })
+        .limit(3);
+
+      const lista = document.getElementById('eventos-lista');
+      const errorEl = document.getElementById('eventos-error');
+
+      if (error) {
+        if (errorEl) {
+          errorEl.textContent = 'Error al cargar eventos. Intenta de nuevo más tarde.';
+          errorEl.style.display = 'block';
+        }
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        if (errorEl) {
+          errorEl.textContent = 'No hay eventos próximos programados.';
+          errorEl.style.display = 'block';
+        }
+        return;
+      }
+
+      if (lista) {
+        lista.innerHTML = data.map(e => `
+          <div class="card" style="margin-bottom:var(--s4);border-left:4px solid ${e.color || 'var(--color-primario)'}">
+            <div class="card-body" style="display:flex;align-items:center;gap:var(--s4)">
+              <div style="text-align:center;min-width:60px">
+                <div style="font-size:var(--texto-2xl);font-weight:700;color:${e.color || 'var(--color-primario)'}">${new Date(e.fecha_inicio).getDate()}</div>
+                <div style="font-size:var(--texto-xs);color:var(--color-texto-muted);text-transform:uppercase">${new Date(e.fecha_inicio).toLocaleDateString('es-VE', { month: 'short' })}</div>
+              </div>
+              <div>
+                <h3 class="card-titulo" style="margin-bottom:var(--s1)">${e.titulo}</h3>
+                ${e.descripcion ? `<p class="card-texto">${truncar(e.descripcion, 100)}</p>` : ''}
+                <span class="badge badge-rol badge-personal" style="margin-top:var(--s2);display:inline-block">${e.tipo}</span>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function cargarRedesSociales() {
+      const { data } = await supabase
+        .from('configuracion_sitio')
+        .select('clave, valor')
+        .in('clave', ['instagram_url', 'whatsapp_url', 'telegram_url']);
+
+      const mapa = { instagram_url: '📷 Instagram', whatsapp_url: '💬 WhatsApp', telegram_url: '✈️ Telegram' };
+      const contenedor = document.getElementById('redes-botones');
+      if (contenedor && data) {
+        contenedor.innerHTML = data
+          .filter(r => r.valor)
+          .map(r => `<a href="${r.valor}" class="btn-red-social" target="_blank" rel="noopener noreferrer">${mapa[r.clave]}</a>`)
+          .join('');
+      }
+    }
+
+    init().catch(console.error);
+  </script>
+
+    <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const hamburguesa=document.getElementById('btn-hamburguesa');
+    const menu=document.getElementById('navbar-menu');
+
+    if (hamburguesa && menu) {
+      hamburguesa.addEventListener('click', function() {
+          menu.classList.toggle('navbar-menu--abierto');
+          const expanded=hamburguesa.getAttribute('aria-expanded')==='true' ? 'false' : 'true';
+          hamburguesa.setAttribute('aria-expanded', expanded);
+        });
+    }
+  });
+    </script>
+</body>
+
+</html>

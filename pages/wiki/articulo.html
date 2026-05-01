@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Artículo de la Wiki Institucional de la UNEXCA.">
+  <title>Artículo — Wiki UNEXCA</title>
+  <link rel="icon" href="/assets/img/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+</head>
+
+<body>
+  <div id="spinner" class="spinner" aria-hidden="true"></div>
+  <div id="navbar-placeholder"></div>
+  <main class="wiki-pagina">
+    <div class="container">
+      <nav class="miga-pan" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/index.html">Inicio</a></li>
+          <li><a href="/pages/wiki/">Wiki</a></li>
+          <li id="miga-categoria"><a href="#">Categoría</a></li>
+          <li id="miga-articulo" aria-current="page">Artículo</li>
+        </ol>
+      </nav>
+      <div id="alerta-error" class="alerta alerta-error" style="display:none" role="alert"></div>
+      <article class="wiki-articulo">
+        <h1 id="articulo-titulo" class="wiki-titulo-articulo"></h1>
+        <div class="wiki-metadatos">
+          <span id="articulo-autor"></span>
+          <span id="articulo-fecha"></span>
+        </div>
+        <div id="contenido-articulo" class="wiki-contenido"></div>
+        <div class="wiki-acciones">
+          <a id="btn-volver-categoria" href="#" class="btn btn-secundario">Volver a la categoría</a>
+          <a id="btn-editar" href="#" class="btn btn-primario" style="display:none">Editar</a>
+        </div>
+      </article>
+    </div>
+  </main>
+  <div id="footer-placeholder"></div>
+  <script type="module" src="wiki.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Calendario Académico UNEXCA - Fechas importantes del año académico">
+  <title>Calendario Académico — UNEXCA</title>
+  <link rel="icon" href="/assets/img/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+</head>
+
+<body>
+  <div id="spinner" class="spinner" aria-hidden="true"></div>
+  <div id="navbar-placeholder"></div>
+  <main class="calendario-pagina">
+    <section class="hero hero--wiki">
+      <div class="container">
+        <h1>Calendario Académico</h1>
+        <p>Consulta las fechas importantes del año académico en la Universidad Nacional Experimental de la Gran Caracas.
+        </p>
+      </div>
+    </section>
+    <section class="seccion-inicio">
+      <div class="container">
+        <div id="alerta-error" class="alerta alerta-error" style="display:none" role="alert"></div>
+
+        <div class="calendario-encabezado">
+          <h2>Próximos eventos</h2>
+          <a id="btn-agregar-evento" href="#" class="btn btn-primario btn-sm" style="display:none">+ Agregar evento</a>
+        </div>
+        <div id="proximos-eventos" class="calendario-lista"></div>
+        <div id="proximos-vacio" class="vacio" style="display:none">
+          <p>No hay eventos próximos programados.</p>
+        </div>
+
+        <hr class="calendario-divisor">
+
+        <h2>Todos los eventos del año</h2>
+        <div id="todos-eventos" class="calendario-lista"></div>
+        <div id="todos-vacio" class="vacio" style="display:none">
+          <p>No hay eventos registrados para este año.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="footer-placeholder"></div>
+  <script type="module" src="/pages/calendario/calendario.js"></script>
+</body>
+
+</html>

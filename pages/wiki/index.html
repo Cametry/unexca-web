@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Explora la Wiki Institucional de la UNEXCA con información organizada por categorías.">
+  <title>Wiki Institucional — UNEXCA</title>
+  <link rel="icon" href="/assets/img/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+</head>
+
+<body>
+  <div id="spinner" class="spinner" aria-hidden="true"></div>
+  <div id="navbar-placeholder"></div>
+  <main class="wiki-pagina">
+    <section class="hero hero--wiki">
+      <div class="container">
+        <h1>Wiki Institucional</h1>
+        <p>Encuentra información organizada sobre la Universidad Nacional Experimental de la Gran Caracas.</p>
+      </div>
+    </section>
+    <section class="seccion-inicio">
+      <div class="container">
+        <div id="alerta-error" class="alerta alerta-error" style="display:none" role="alert"></div>
+        <div id="categorias-contenedor" class="grid-tarjetas"></div>
+        <div id="sin-resultados" class="vacio" style="display:none">
+          <p>No hay categorías disponibles aún.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="footer-placeholder"></div>
+  <script type="module" src="wiki.js"></script>
+</body>
+
+</html>

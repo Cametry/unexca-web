@@ -1,0 +1,29 @@
+<nav class="navbar" id="navbar">
+  <div class="container navbar-contenido">
+    <a href="/index.html" class="navbar-logo">
+      <img src="/assets/img/logo-white.png" alt="UNEXCA" height="40">
+    </a>
+    <ul class="navbar-menu" id="navbar-menu" role="navigation">
+      <li><a href="/pages/wiki/" class="nav-link">Wiki</a></li>
+      <li><a href="/pages/faq/" class="nav-link">FAQ</a></li>
+      <li><a href="/pages/noticias/" class="nav-link">Noticias</a></li>
+      <li><a href="/pages/documentos/" class="nav-link">Documentos</a></li>
+      <li><a href="/pages/calendario/" class="nav-link">Calendario</a></li>
+    </ul>
+    <div class="navbar-acciones">
+      <a href="/pages/auth/login.html" class="btn btn-secundario btn-sm" id="btn-login-nav">
+        Iniciar Sesión
+      </a>
+      <div id="navbar-usuario" style="display:none" class="navbar-usuario">
+        <span id="navbar-nombre-usuario" class="navbar-saludo"></span>
+        <a href="/admin/" id="link-admin" class="btn btn-sm btn-primario" style="display:none">
+          Admin
+        </a>
+        <button id="btn-logout" class="btn btn-sm btn-secundario">Salir</button>
+      </div>
+    </div>
+    <button class="navbar-hamburguesa" id="btn-hamburguesa" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>

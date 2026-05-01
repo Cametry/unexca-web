@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Artículos de la categoría seleccionada en la Wiki Institucional de la UNEXCA.">
+  <title>Categoría — Wiki UNEXCA</title>
+  <link rel="icon" href="/assets/img/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+</head>
+
+<body>
+  <div id="spinner" class="spinner" aria-hidden="true"></div>
+  <div id="navbar-placeholder"></div>
+  <main class="wiki-pagina">
+    <div class="container">
+      <nav class="miga-pan" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/index.html">Inicio</a></li>
+          <li><a href="/pages/wiki/">Wiki</a></li>
+          <li id="miga-categoria" aria-current="page">Categoría</li>
+        </ol>
+      </nav>
+      <div id="alerta-error" class="alerta alerta-error" style="display:none" role="alert"></div>
+      <h1 id="categoria-titulo" class="wiki-titulo-pagina"></h1>
+      <p id="categoria-descripcion" class="wiki-descripcion"></p>
+      <div id="articulos-contenedor" class="grid-tarjetas"></div>
+      <div id="sin-resultados" class="vacio" style="display:none">
+        <p>No hay artículos en esta categoría todavía.</p>
+      </div>
+    </div>
+  </main>
+  <div id="footer-placeholder"></div>
+  <script type="module" src="wiki.js"></script>
+</body>
+
+</html>

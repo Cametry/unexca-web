@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Centro de Documentos UNEXCA - Descarga materiales académicos">
+  <title>Centro de Documentos — UNEXCA</title>
+  <link rel="icon" href="/assets/img/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <style>
+    .documentos-pagina {
+      padding: 2rem 0 4rem;
+    }
+
+    .documentos-hero {
+      background: linear-gradient(135deg, var(--color-primario), #041E4A);
+      color: #fff;
+      padding: 3rem 2rem;
+      border-radius: var(--borde-radio, 12px);
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+
+    .documentos-hero h1 {
+      font-size: 2rem;
+      margin: 0 0 0.5rem;
+      font-weight: 700;
+    }
+
+    .documentos-hero p {
+      font-size: 1.05rem;
+      opacity: 0.85;
+      margin: 0;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .documentos-categoria {
+      margin-bottom: 2.5rem;
+    }
+
+    .documentos-categoria-titulo {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--color-primario);
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--color-primario);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .documentos-categoria-titulo::before {
+      content: '\1F4C1';
+      font-size: 1.3rem;
+    }
+
+    .documentos-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .documento-card {
+      background: var(--color-blanco, #fff);
+      border: 1px solid var(--color-gris-claro, #e0e0e0);
+      border-radius: var(--borde-radio, 8px);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .documento-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .documento-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .documento-icono {
+      font-size: 1.75rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .documento-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .documento-info h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.3rem;
+      color: var(--color-texto, #222);
+    }
+
+    .documento-info p {
+      font-size: 0.9rem;
+      color: var(--color-texto-secundario, #555);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .documento-card-accion {
+      align-self: flex-start;
+    }
+
+    .documento-card-accion .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+    }
+
+    .documento-card-accion .btn::before {
+      content: '\2B07';
+      font-size: 0.9rem;
+    }
+
+    .documentos-vacio {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--color-texto-secundario, #666);
+    }
+
+    .documentos-vacio p {
+      font-size: 1rem;
+      margin: 0.5rem 0 0;
+    }
+
+    .documentos-vacio-icono {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    @media (min-width: 576px) {
+      .documentos-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 992px) {
+      .documentos-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="spinner" class="spinner" aria-hidden="true"></div>
+  <div id="navbar-placeholder"></div>
+  <main class="documentos-pagina">
+    <div class="container">
+      <div id="alerta-error" class="alerta alerta-error" style="display:none" role="alert"></div>
+      <section class="documentos-hero">
+        <h1>Centro de Documentos</h1>
+        <p>Accede a materiales académicos, guías, reglamentos y recursos institucionales para tu formación.</p>
+      </section>
+      <div id="documentos-contenedor"></div>
+    </div>
+  </main>
+  <div id="footer-placeholder"></div>
+  <script type="module" src="documentos.js"></script>
+</body>
+
+</html>
