@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Editor de FAQ — UNEXCA">
+  <title>FAQ — UNEXCA</title>
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+
+<body>
+  <div id="spinner" class="spinner" style="display:none;">
+    <div class="spinner-circle"></div>
+  </div>
+
+  <div id="navbar-placeholder"></div>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <button class="admin-toggle-btn" id="admin-toggle-btn" aria-label="Abrir menú">☰</button>
+      <div class="admin-sidebar-logo">
+        <img src="/assets/img/logo-white.png" alt="UNEXCA" height="40">
+      </div>
+      <nav>
+        <ul class="admin-nav admin-sidebar-nav">
+          <li><a href="/admin/"><span>📊</span> Dashboard</a></li>
+          <li><a href="/admin/usuarios.html"><span>👥</span> Usuarios</a></li>
+          <li><a href="/admin/wiki-editor.html"><span>📖</span> Wiki</a></li>
+          <li><a href="/admin/faq-editor.html" class="activo"><span>❓</span> FAQ</a></li>
+          <li><a href="/admin/noticias-editor.html"><span>📰</span> Noticias</a></li>
+          <li><a href="/admin/documentos-editor.html"><span>📄</span> Documentos</a></li>
+          <li><a href="/admin/calendario-editor.html"><span>📅</span> Calendario</a></li>
+          <li><a href="/admin/configuracion.html"><span>⚙️</span> Configuración</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="container">
+        <div class="admin-header">
+          <h1>Gestión de Preguntas Frecuentes</h1>
+          <button class="btn btn-primario" id="btn-nueva-pregunta">+ Nueva Pregunta</button>
+        </div>
+
+        <div id="admin-mensaje" class="admin-mensaje"></div>
+
+        <div class="editor-form" id="editor-form" style="display:none;">
+          <h2 id="form-titulo">Crear Pregunta</h2>
+          <input type="hidden" id="pregunta-id" value="">
+
+          <div class="form-grupo">
+            <label for="form-categoria">Categoría</label>
+            <select id="form-categoria" class="form-input" required>
+              <option value="">Seleccionar categoría...</option>
+            </select>
+          </div>
+
+          <div class="form-grupo">
+            <label for="form-pregunta">Pregunta</label>
+            <input type="text" id="form-pregunta" class="form-input" required>
+          </div>
+
+          <div class="form-grupo">
+            <label for="form-respuesta">Respuesta</label>
+            <textarea id="form-respuesta" class="form-input" rows="6" required></textarea>
+          </div>
+
+          <div class="form-grupo">
+            <label for="form-orden">Orden</label>
+            <input type="number" id="form-orden" class="form-input" value="0" min="0">
+          </div>
+
+          <div class="form-checkbox">
+            <input type="checkbox" id="form-publicado" checked>
+            <label for="form-publicado">Publicar</label>
+          </div>
+
+          <div class="editor-acciones">
+            <button class="btn btn-primario" id="btn-guardar">Guardar</button>
+            <button class="btn btn-secundario" id="btn-cancelar">Cancelar</button>
+          </div>
+        </div>
+
+        <table class="admin-tabla">
+          <thead>
+            <tr>
+              <th>Pregunta</th>
+              <th>Categoría</th>
+              <th>Orden</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-preguntas"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script type="module">
+    await requiereAutenticacion('admin');
+
+    import { requiereAutenticacion, getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
+    import { supabase } from '/assets/js/supabase-client.js';
+    import { initAdmin } from '/admin/admin.js';
+    import { sanitizar } from '/assets/js/utils.js';
+
+    await initAdmin();
+
+    /* ─── State ─────────────────────────────────── */
+    let modoEdicion = false;
+    let preguntaEditandoId = null;
+
+    /* ─── DOM references ────────────────────────── */
+    const $ = (id) => document.getElementById(id);
+    const editorForm = $('editor-form');
+    const formTitulo = $('form-titulo');
+    const preguntaId = $('pregunta-id');
+    const formCategoria = $('form-categoria');
+    const formPregunta = $('form-pregunta');
+    const formRespuesta = $('form-respuesta');
+    const formOrden = $('form-orden');
+    const formPublicado = $('form-publicado');
+    const btnGuardar = $('btn-guardar');
+    const btnCancelar = $('btn-cancelar');
+    const btnNueva = $('btn-nueva-pregunta');
+    const tablaPreguntas = $('tabla-preguntas');
+    const mensaje = $('admin-mensaje');
+
+    /* ─── Message helper ────────────────────────── */
+    function mostrarMensaje(texto, tipo) {
+      mensaje.textContent = texto;
+      mensaje.className = 'admin-mensaje ' + tipo;
+      setTimeout(() => {
+        mensaje.className = 'admin-mensaje';
+        mensaje.textContent = '';
+      }, 3000);
+    }
+
+    /* ─── Load categories ───────────────────────── */
+    async function cargarCategorias() {
+      try {
+        const { data, error } = await supabase
+          .from('faq_categorias')
+          .select('id, nombre')
+          .order('orden');
+
+        if (error) throw error;
+
+        formCategoria.innerHTML = '<option value="">Seleccionar categoría...</option>';
+        if (data) {
+          data.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.id;
+            opt.textContent = cat.nombre;
+            formCategoria.appendChild(opt);
+          });
+        }
+      } catch (err) {
+        console.error('Error al cargar categorías:', err);
+        mostrarMensaje('Error al cargar categorías: ' + err.message, 'error');
+      }
+    }
+
+    /* ─── Load questions ────────────────────────── */
+    async function cargarPreguntas() {
+      try {
+        const { data, error } = await supabase
+          .from('faq_preguntas')
+          .select('*, faq_categorias(nombre)')
+          .order('creado_en', { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          tablaPreguntas.innerHTML = '<tr><td colspan="5" class="empty-state">No hay preguntas aún</td></tr>';
+          return;
+        }
+
+        tablaPreguntas.innerHTML = data.map(p => {
+          const pregunta = sanitizar(p.pregunta.length > 60 ? p.pregunta.slice(0, 60) + '...' : p.pregunta);
+          const categoria = p.faq_categorias?.nombre
+            ? `<span class="badge badge-categoria">${sanitizar(p.faq_categorias.nombre)}</span>`
+            : '—';
+          const orden = p.orden ?? 0;
+          const estado = p.publicado
+            ? '<span class="badge badge-publicado">Publicado</span>'
+            : '<span class="badge badge-borrador">Borrador</span>';
+          return `<tr>
+            <td>${pregunta}</td>
+            <td>${categoria}</td>
+            <td>${orden}</td>
+            <td>${estado}</td>
+            <td>
+              <button class="btn btn-sm btn-primario btn-editar" data-id="${p.id}">Editar</button>
+              <button class="btn btn-sm btn-peligro btn-eliminar" data-id="${p.id}">Eliminar</button>
+            </td>
+          </tr>`;
+        }).join('');
+      } catch (err) {
+        console.error('Error al cargar preguntas:', err);
+        tablaPreguntas.innerHTML = '<tr><td colspan="5" class="empty-state error">Error al cargar los datos: ' + err.message + '</td></tr>';
+      }
+    }
+
+    /* ─── Show / Hide form ──────────────────────── */
+    function mostrarFormulario() {
+      editorForm.style.display = 'block';
+    }
+
+    function ocultarFormulario() {
+      editorForm.style.display = 'none';
+      formTitulo.textContent = 'Crear Pregunta';
+      preguntaId.value = '';
+      formCategoria.value = '';
+      formPregunta.value = '';
+      formRespuesta.value = '';
+      formOrden.value = '0';
+      formPublicado.checked = true;
+      modoEdicion = false;
+      preguntaEditandoId = null;
+    }
+
+    /* ─── Nueva pregunta ────────────────────────── */
+    btnNueva.addEventListener('click', () => {
+      ocultarFormulario();
+      modoEdicion = false;
+      mostrarFormulario();
+    });
+
+    /* ─── Cancelar ──────────────────────────────── */
+    btnCancelar.addEventListener('click', ocultarFormulario);
+
+    /* ─── Editar (event delegation) ─────────────── */
+    tablaPreguntas.addEventListener('click', async (e) => {
+      const btnEditar = e.target.closest('.btn-editar');
+      if (!btnEditar) return;
+
+      const id = btnEditar.dataset.id;
+      try {
+        const { data, error } = await supabase
+          .from('faq_preguntas')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+        if (!data) throw new Error('Pregunta no encontrada');
+
+        preguntaId.value = data.id;
+        formCategoria.value = data.categoria_id || '';
+        formPregunta.value = data.pregunta || '';
+        formRespuesta.value = data.respuesta || '';
+        formOrden.value = data.orden ?? 0;
+        formPublicado.checked = data.publicado ?? true;
+        modoEdicion = true;
+        preguntaEditandoId = data.id;
+        formTitulo.textContent = 'Editar Pregunta';
+        mostrarFormulario();
+      } catch (err) {
+        console.error('Error al cargar pregunta:', err);
+        mostrarMensaje('Error al cargar la pregunta: ' + err.message, 'error');
+      }
+    });
+
+    /* ─── Guardar ───────────────────────────────── */
+    btnGuardar.addEventListener('click', async () => {
+      try {
+        const categoria_id = formCategoria.value;
+        const pregunta = formPregunta.value.trim();
+        const respuesta = formRespuesta.value.trim();
+        const orden = parseInt(formOrden.value, 10) || 0;
+        const publicado = formPublicado.checked;
+
+        if (!categoria_id) {
+          mostrarMensaje('Debes seleccionar una categoría', 'error');
+          return;
+        }
+        if (!pregunta) {
+          mostrarMensaje('La pregunta es obligatoria', 'error');
+          return;
+        }
+        if (!respuesta) {
+          mostrarMensaje('La respuesta es obligatoria', 'error');
+          return;
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!modoEdicion) {
+          const { error } = await supabase
+            .from('faq_preguntas')
+            .insert({
+              categoria_id,
+              pregunta,
+              respuesta,
+              orden,
+              publicado,
+              autor_id: user.id
+            })
+            .select()
+            .single();
+
+          if (error) throw error;
+          mostrarMensaje('Pregunta creada exitosamente', 'exito');
+        } else {
+          const { error } = await supabase
+            .from('faq_preguntas')
+            .update({
+              categoria_id,
+              pregunta,
+              respuesta,
+              orden,
+              publicado
+            })
+            .eq('id', preguntaEditandoId);
+
+          if (error) throw error;
+          mostrarMensaje('Pregunta actualizada exitosamente', 'exito');
+        }
+
+        ocultarFormulario();
+        await cargarPreguntas();
+      } catch (err) {
+        console.error('Error al guardar pregunta:', err);
+        mostrarMensaje('Error al guardar la pregunta: ' + err.message, 'error');
+      }
+    });
+
+    /* ─── Eliminar (event delegation) ───────────── */
+    tablaPreguntas.addEventListener('click', async (e) => {
+      const btnEliminar = e.target.closest('.btn-eliminar');
+      if (!btnEliminar) return;
+
+      const id = btnEliminar.dataset.id;
+      if (!confirm('¿Seguro que deseas eliminar esta pregunta?')) return;
+
+      try {
+        const { error } = await supabase
+          .from('faq_preguntas')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        mostrarMensaje('Pregunta eliminada exitosamente', 'exito');
+        await cargarPreguntas();
+      } catch (err) {
+        console.error('Error al eliminar pregunta:', err);
+        mostrarMensaje('Error al eliminar la pregunta: ' + err.message, 'error');
+      }
+    });
+
+    /* ─── Mobile toggle ─────────────────────────── */
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('admin-toggle-btn');
+      const sidebar = document.getElementById('admin-sidebar');
+      if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('abierto');
+        });
+      }
+    });
+
+    /* ─── Init ──────────────────────────────────── */
+    await cargarCategorias();
+    await cargarPreguntas();
+  </script>
+</body>
+
+</html>

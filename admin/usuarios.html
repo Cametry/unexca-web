@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Gestión de Usuarios — UNEXCA">
+  <title>Usuarios — UNEXCA</title>
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+
+<body>
+  <div id="spinner" class="spinner" style="display:none;">
+    <div class="spinner-circle"></div>
+  </div>
+
+  <div id="navbar-placeholder"></div>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <button class="admin-toggle-btn" id="admin-toggle-btn" aria-label="Abrir menú">☰</button>
+      <div class="admin-sidebar-logo">
+        <img src="/assets/img/logo-white.png" alt="UNEXCA" height="40">
+      </div>
+      <nav>
+        <ul class="admin-nav admin-sidebar-nav">
+          <li><a href="/admin/"><span>📊</span> Dashboard</a></li>
+          <li><a href="/admin/usuarios.html" class="activo"><span>👥</span> Usuarios</a></li>
+          <li><a href="/admin/wiki-editor.html"><span>📖</span> Wiki</a></li>
+          <li><a href="/admin/faq-editor.html"><span>❓</span> FAQ</a></li>
+          <li><a href="/admin/noticias-editor.html"><span>📰</span> Noticias</a></li>
+          <li><a href="/admin/documentos-editor.html"><span>📄</span> Documentos</a></li>
+          <li><a href="/admin/calendario-editor.html"><span>📅</span> Calendario</a></li>
+          <li><a href="/admin/configuracion.html"><span>⚙️</span> Configuración</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="container">
+        <div class="admin-header">
+          <h1>Gestión de Usuarios</h1>
+        </div>
+
+        <div id="admin-mensaje" class="admin-mensaje"></div>
+
+        <div class="admin-busqueda">
+          <input type="text" id="buscar-usuario" placeholder="Buscar por nombre o email...">
+        </div>
+
+        <table class="admin-tabla">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-usuarios"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script type="module">
+    await requiereAutenticacion('admin');
+
+    import { requiereAutenticacion, getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
+    import { supabase } from '/assets/js/supabase-client.js';
+    import { initAdmin } from '/admin/admin.js';
+    import { sanitizar } from '/assets/js/utils.js';
+
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => document.querySelectorAll(sel);
+
+    /* ─── Mostrar mensajes ──────────────────────── */
+    function mostrarMensaje(texto, tipo) {
+      const msg = document.getElementById('admin-mensaje');
+      if (!msg) return;
+      msg.textContent = texto;
+      msg.className = 'admin-mensaje ' + tipo;
+      msg.style.display = 'block';
+      setTimeout(() => {
+        msg.style.display = 'none';
+        msg.className = 'admin-mensaje';
+      }, 3000);
+    }
+
+    /* ─── Cargar usuarios ───────────────────────── */
+    async function cargarUsuarios() {
+      const tbody = document.getElementById('tabla-usuarios');
+      try {
+        const { data: usuarios, error } = await supabase
+          .from('perfiles')
+          .select('*')
+          .order('creado_en', { ascending: false });
+
+        if (error) throw error;
+
+        if (!usuarios || usuarios.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No hay usuarios registrados</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = usuarios.map(u => {
+          const id = u.id;
+          const nombre = sanitizar(u.nombre_completo || '');
+          const email = sanitizar(u.email || '');
+          const rol = u.rol || 'estudiante';
+          const activo = u.activo !== false;
+
+          const roles = ['estudiante', 'personal', 'admin'];
+          const rolOptions = roles.map(r =>
+            `<option value="${r}"${r === rol ? ' selected' : ''}>${r.charAt(0).toUpperCase() + r.slice(1)}</option>`
+          ).join('');
+
+          const estadoBadge = activo
+            ? '<span class="badge badge-activo">Activo</span>'
+            : '<span class="badge badge-inactivo">Inactivo</span>';
+
+          const btnTexto = activo ? 'Desactivar' : 'Activar';
+
+          return `<tr>
+            <td>${nombre}</td>
+            <td>${email}</td>
+            <td><select class="rol-select" data-user-id="${id}">${rolOptions}</select></td>
+            <td>${estadoBadge}</td>
+            <td>
+              <div class="acciones">
+                <button class="btn btn-sm btn-primario btn-cambiar-rol" data-user-id="${id}">Cambiar Rol</button>
+                <button class="btn btn-sm btn-peligro btn-desactivar" data-user-id="${id}" data-activo="${activo}">${btnTexto}</button>
+              </div>
+            </td>
+          </tr>`;
+        }).join('');
+
+      } catch (err) {
+        console.error('Error al cargar usuarios:', err);
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-state error">Error al cargar los datos: ${err.message}</td></tr>`;
+      }
+    }
+
+    /* ─── Filtro de búsqueda ────────────────────── */
+    document.getElementById('buscar-usuario').addEventListener('input', (e) => {
+      const termino = e.target.value.toLowerCase().trim();
+      const filas = document.querySelectorAll('#tabla-usuarios tr');
+      filas.forEach(fila => {
+        if (termino === '') {
+          fila.style.display = '';
+          return;
+        }
+        const celdas = fila.querySelectorAll('td');
+        if (celdas.length < 2) return;
+        const nombre = celdas[0].textContent.toLowerCase();
+        const email = celdas[1].textContent.toLowerCase();
+        fila.style.display = (nombre.includes(termino) || email.includes(termino)) ? '' : 'none';
+      });
+    });
+
+    /* ─── Cambiar rol ────────────────────────────── */
+    document.getElementById('tabla-usuarios').addEventListener('click', async (e) => {
+      const btn = e.target.closest('.btn-cambiar-rol');
+      if (!btn) return;
+
+      const userId = btn.dataset.userId;
+      const select = document.querySelector(`.rol-select[data-user-id="${userId}"]`);
+      if (!select) return;
+
+      const newRole = select.value;
+
+      try {
+        const { error } = await supabase
+          .from('perfiles')
+          .update({ rol: newRole })
+          .eq('id', userId);
+
+        if (error) throw error;
+
+        mostrarMensaje('Rol actualizado correctamente', 'exito');
+        await cargarUsuarios();
+      } catch (err) {
+        console.error('Error al cambiar rol:', err);
+        mostrarMensaje('Error al cambiar el rol: ' + err.message, 'error');
+      }
+    });
+
+    /* ─── Activar / Desactivar usuario ───────────── */
+    document.getElementById('tabla-usuarios').addEventListener('click', async (e) => {
+      const btn = e.target.closest('.btn-desactivar');
+      if (!btn) return;
+
+      const userId = btn.dataset.userId;
+      const activoActual = btn.dataset.activo === 'true';
+      const mensaje = activoActual
+        ? '¿Seguro que deseas desactivar esta cuenta?'
+        : '¿Seguro que deseas activar esta cuenta?';
+
+      if (!confirm(mensaje)) return;
+
+      try {
+        const { error } = await supabase
+          .from('perfiles')
+          .update({ activo: !activoActual })
+          .eq('id', userId);
+
+        if (error) throw error;
+
+        mostrarMensaje(
+          activoActual ? 'Cuenta desactivada correctamente' : 'Cuenta activada correctamente',
+          'exito'
+        );
+        await cargarUsuarios();
+      } catch (err) {
+        console.error('Error al cambiar estado:', err);
+        mostrarMensaje('Error al cambiar el estado: ' + err.message, 'error');
+      }
+    });
+
+    /* ─── Inicialización ─────────────────────────── */
+    try {
+      await initAdmin();
+      await cargarUsuarios();
+    } catch (err) {
+      console.error('Error en la inicialización:', err);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('admin-toggle-btn');
+      const sidebar = document.getElementById('admin-sidebar');
+      if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('abierto');
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

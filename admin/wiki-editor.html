@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Editor de Wiki — UNEXCA">
+  <title>Wiki — UNEXCA</title>
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+
+<body>
+  <div id="spinner" class="spinner" style="display:none;">
+    <div class="spinner-circle"></div>
+  </div>
+
+  <div id="navbar-placeholder"></div>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <button class="admin-toggle-btn" id="admin-toggle-btn" aria-label="Abrir menú">☰</button>
+      <div class="admin-sidebar-logo">
+        <img src="/assets/img/logo-white.png" alt="UNEXCA" height="40">
+      </div>
+      <nav>
+        <ul class="admin-nav admin-sidebar-nav">
+          <li><a href="/admin/"><span>📊</span> Dashboard</a></li>
+          <li><a href="/admin/usuarios.html"><span>👥</span> Usuarios</a></li>
+          <li><a href="/admin/wiki-editor.html" class="activo"><span>📖</span> Wiki</a></li>
+          <li><a href="/admin/faq-editor.html"><span>❓</span> FAQ</a></li>
+          <li><a href="/admin/noticias-editor.html"><span>📰</span> Noticias</a></li>
+          <li><a href="/admin/documentos-editor.html"><span>📄</span> Documentos</a></li>
+          <li><a href="/admin/calendario-editor.html"><span>📅</span> Calendario</a></li>
+          <li><a href="/admin/configuracion.html"><span>⚙️</span> Configuración</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="container">
+        <div class="admin-header">
+          <h1>Gestión de Artículos Wiki</h1>
+          <button class="btn btn-primario" id="btn-nuevo-articulo">+ Nuevo Artículo</button>
+        </div>
+
+        <div id="admin-mensaje" class="admin-mensaje"></div>
+
+        <div class="editor-form" id="editor-form" style="display:none;">
+          <h2 id="form-titulo">Crear Artículo</h2>
+          <input type="hidden" id="articulo-id" value="">
+
+          <div class="form-grupo">
+            <label for="form-categoria">Categoría</label>
+            <select id="form-categoria" class="form-input" required>
+              <option value="">Seleccionar categoría...</option>
+            </select>
+          </div>
+
+          <div class="form-grupo">
+            <label for="form-titulo-input">Título</label>
+            <input type="text" id="form-titulo-input" class="form-input" required>
+          </div>
+
+          <div class="form-grupo">
+            <label for="form-contenido">Contenido</label>
+            <textarea id="form-contenido" class="form-input" rows="12" required></textarea>
+          </div>
+
+          <div class="form-checkbox">
+            <input type="checkbox" id="form-publicado">
+            <label for="form-publicado">Publicar artículo</label>
+          </div>
+
+          <div class="editor-acciones">
+            <button class="btn btn-primario" id="btn-guardar">Guardar</button>
+            <button class="btn btn-secundario" id="btn-cancelar">Cancelar</button>
+          </div>
+        </div>
+
+        <table class="admin-tabla">
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Categoría</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-articulos"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script type="module">
+    await requiereAutenticacion('admin');
+
+    import { requiereAutenticacion, getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
+    import { supabase } from '/assets/js/supabase-client.js';
+    import { initAdmin } from '/admin/admin.js';
+    import { formatearFecha, sanitizar } from '/assets/js/utils.js';
+
+    await initAdmin();
+
+    /* ─── State ─────────────────────────────────── */
+    let modoEdicion = false;
+    let articuloEditandoId = null;
+
+    /* ─── DOM references ────────────────────────── */
+    const $ = (id) => document.getElementById(id);
+    const editorForm = $('editor-form');
+    const formTitulo = $('form-titulo');
+    const articuloId = $('articulo-id');
+    const formCategoria = $('form-categoria');
+    const formTituloInput = $('form-titulo-input');
+    const formContenido = $('form-contenido');
+    const formPublicado = $('form-publicado');
+    const btnGuardar = $('btn-guardar');
+    const btnCancelar = $('btn-cancelar');
+    const btnNuevo = $('btn-nuevo-articulo');
+    const tablaArticulos = $('tabla-articulos');
+    const mensaje = $('admin-mensaje');
+
+    /* ─── Message helper ────────────────────────── */
+    function mostrarMensaje(texto, tipo) {
+      mensaje.textContent = texto;
+      mensaje.className = 'admin-mensaje ' + tipo;
+      setTimeout(() => {
+        mensaje.className = 'admin-mensaje';
+        mensaje.textContent = '';
+      }, 3000);
+    }
+
+    /* ─── Load categories ───────────────────────── */
+    async function cargarCategorias() {
+      try {
+        const { data, error } = await supabase
+          .from('wiki_categorias')
+          .select('id, nombre')
+          .order('orden');
+
+        if (error) throw error;
+
+        formCategoria.innerHTML = '<option value="">Seleccionar categoría...</option>';
+        if (data) {
+          data.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.id;
+            opt.textContent = cat.nombre;
+            formCategoria.appendChild(opt);
+          });
+        }
+      } catch (err) {
+        console.error('Error al cargar categorías:', err);
+        mostrarMensaje('Error al cargar categorías: ' + err.message, 'error');
+      }
+    }
+
+    /* ─── Load articles ─────────────────────────── */
+    async function cargarArticulos() {
+      try {
+        const { data, error } = await supabase
+          .from('wiki_articulos')
+          .select('*, wiki_categorias(nombre)')
+          .order('creado_en', { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          tablaArticulos.innerHTML = '<tr><td colspan="5" class="empty-state">No hay artículos aún</td></tr>';
+          return;
+        }
+
+        tablaArticulos.innerHTML = data.map(a => {
+          const titulo = sanitizar(a.titulo);
+          const categoria = a.wiki_categorias?.nombre
+            ? `<span class="badge badge-categoria">${sanitizar(a.wiki_categorias.nombre)}</span>`
+            : '—';
+          const estado = a.publicado
+            ? '<span class="badge badge-publicado">Publicado</span>'
+            : '<span class="badge badge-borrador">Borrador</span>';
+          const fecha = formatearFecha(a.creado_en);
+          return `<tr>
+            <td>${titulo}</td>
+            <td>${categoria}</td>
+            <td>${estado}</td>
+            <td>${fecha}</td>
+            <td>
+              <button class="btn btn-sm btn-primario btn-editar" data-id="${a.id}">Editar</button>
+              <button class="btn btn-sm btn-peligro btn-eliminar" data-id="${a.id}">Eliminar</button>
+            </td>
+          </tr>`;
+        }).join('');
+      } catch (err) {
+        console.error('Error al cargar artículos:', err);
+        tablaArticulos.innerHTML = '<tr><td colspan="5" class="empty-state error">Error al cargar los datos: ' + err.message + '</td></tr>';
+      }
+    }
+
+    /* ─── Show / Hide form ──────────────────────── */
+    function mostrarFormulario() {
+      editorForm.style.display = 'block';
+    }
+
+    function ocultarFormulario() {
+      editorForm.style.display = 'none';
+      formTitulo.textContent = 'Crear Artículo';
+      articuloId.value = '';
+      formCategoria.value = '';
+      formTituloInput.value = '';
+      formContenido.value = '';
+      formPublicado.checked = false;
+      modoEdicion = false;
+      articuloEditandoId = null;
+    }
+
+    /* ─── Nuevo artículo ────────────────────────── */
+    btnNuevo.addEventListener('click', () => {
+      ocultarFormulario();
+      modoEdicion = false;
+      mostrarFormulario();
+    });
+
+    /* ─── Cancelar ──────────────────────────────── */
+    btnCancelar.addEventListener('click', ocultarFormulario);
+
+    /* ─── Editar (event delegation) ─────────────── */
+    tablaArticulos.addEventListener('click', async (e) => {
+      const btnEditar = e.target.closest('.btn-editar');
+      if (!btnEditar) return;
+
+      const id = btnEditar.dataset.id;
+      try {
+        const { data, error } = await supabase
+          .from('wiki_articulos')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+        if (!data) throw new Error('Artículo no encontrado');
+
+        articuloId.value = data.id;
+        formCategoria.value = data.categoria_id || '';
+        formTituloInput.value = data.titulo || '';
+        formContenido.value = data.contenido || '';
+        formPublicado.checked = data.publicado || false;
+        modoEdicion = true;
+        articuloEditandoId = data.id;
+        formTitulo.textContent = 'Editar Artículo';
+        mostrarFormulario();
+      } catch (err) {
+        console.error('Error al cargar artículo:', err);
+        mostrarMensaje('Error al cargar el artículo: ' + err.message, 'error');
+      }
+    });
+
+    /* ─── Guardar ───────────────────────────────── */
+    btnGuardar.addEventListener('click', async () => {
+      try {
+        const categoria_id = formCategoria.value;
+        const titulo = formTituloInput.value.trim();
+        const contenido = formContenido.value.trim();
+        const publicado = formPublicado.checked;
+
+        if (!categoria_id) {
+          mostrarMensaje('Debes seleccionar una categoría', 'error');
+          return;
+        }
+        if (!titulo) {
+          mostrarMensaje('El título es obligatorio', 'error');
+          return;
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!modoEdicion) {
+          const { error } = await supabase
+            .from('wiki_articulos')
+            .insert({
+              categoria_id,
+              titulo,
+              contenido,
+              publicado,
+              autor_id: user.id
+            })
+            .select()
+            .single();
+
+          if (error) throw error;
+          mostrarMensaje('Artículo creado exitosamente', 'exito');
+        } else {
+          const { error } = await supabase
+            .from('wiki_articulos')
+            .update({
+              categoria_id,
+              titulo,
+              contenido,
+              publicado
+            })
+            .eq('id', articuloEditandoId);
+
+          if (error) throw error;
+          mostrarMensaje('Artículo actualizado exitosamente', 'exito');
+        }
+
+        ocultarFormulario();
+        await cargarArticulos();
+      } catch (err) {
+        console.error('Error al guardar artículo:', err);
+        mostrarMensaje('Error al guardar el artículo: ' + err.message, 'error');
+      }
+    });
+
+    /* ─── Eliminar (event delegation) ───────────── */
+    tablaArticulos.addEventListener('click', async (e) => {
+      const btnEliminar = e.target.closest('.btn-eliminar');
+      if (!btnEliminar) return;
+
+      const id = btnEliminar.dataset.id;
+      if (!confirm('¿Seguro que deseas eliminar este artículo?')) return;
+
+      try {
+        const { error } = await supabase
+          .from('wiki_articulos')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        mostrarMensaje('Artículo eliminado exitosamente', 'exito');
+        await cargarArticulos();
+      } catch (err) {
+        console.error('Error al eliminar artículo:', err);
+        mostrarMensaje('Error al eliminar el artículo: ' + err.message, 'error');
+      }
+    });
+
+    /* ─── Mobile toggle ─────────────────────────── */
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('admin-toggle-btn');
+      const sidebar = document.getElementById('admin-sidebar');
+      if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('abierto');
+        });
+      }
+    });
+
+    /* ─── Init ──────────────────────────────────── */
+    await cargarCategorias();
+    await cargarArticulos();
+  </script>
+</body>
+
+</html>

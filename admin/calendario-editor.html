@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Editor de Calendario — UNEXCA">
+  <title>Calendario — UNEXCA</title>
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+
+<body>
+  <div id="spinner" class="spinner" style="display:none;">
+    <div class="spinner-circle"></div>
+  </div>
+
+  <div id="navbar-placeholder"></div>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <button class="admin-toggle-btn" id="admin-toggle-btn" aria-label="Abrir menú">☰</button>
+      <div class="admin-sidebar-logo">
+        <img src="/assets/img/logo-white.png" alt="UNEXCA" height="40">
+      </div>
+      <nav>
+        <ul class="admin-nav admin-sidebar-nav">
+          <li><a href="/admin/"><span>📊</span> Dashboard</a></li>
+          <li><a href="/admin/usuarios.html"><span>👥</span> Usuarios</a></li>
+          <li><a href="/admin/wiki-editor.html"><span>📖</span> Wiki</a></li>
+          <li><a href="/admin/faq-editor.html"><span>❓</span> FAQ</a></li>
+          <li><a href="/admin/noticias-editor.html"><span>📰</span> Noticias</a></li>
+          <li><a href="/admin/documentos-editor.html"><span>📄</span> Documentos</a></li>
+          <li><a href="/admin/calendario-editor.html" class="activo"><span>📅</span> Calendario</a></li>
+          <li><a href="/admin/configuracion.html"><span>⚙️</span> Configuración</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="container">
+        <div class="admin-header">
+          <h1>Gestión de Eventos</h1>
+          <button class="btn btn-primario" id="btn-nuevo-evento">+ Nuevo Evento</button>
+        </div>
+
+        <div id="admin-mensaje" class="admin-mensaje"></div>
+
+        <div class="editor-form" id="editor-form" style="display:none;">
+          <h2 id="form-titulo">Crear Evento</h2>
+          <input type="hidden" id="evento-id" value="">
+
+          <div class="form-grupo">
+            <label for="form-titulo-input">Título</label>
+            <input type="text" id="form-titulo-input" class="form-input" required>
+          </div>
+
+          <div class="form-grupo">
+            <label for="form-descripcion">Descripción</label>
+            <textarea id="form-descripcion" class="form-input" rows="3" placeholder="Opcional"></textarea>
+          </div>
+
+          <div class="form-grupo">
+            <label for="form-fecha-inicio">Fecha inicio</label>
+            <input type="date" id="form-fecha-inicio" class="form-input" required>
+          </div>
+
+          <div class="form-grupo">
+            <label for="form-fecha-fin">Fecha fin</label>
+            <input type="date" id="form-fecha-fin" class="form-input" placeholder="Opcional">
+          </div>
+
+          <div class="form-grupo">
+            <label for="form-tipo">Tipo</label>
+            <select id="form-tipo" class="form-input" required>
+              <option value="General">General</option>
+              <option value="Inscripción">Inscripción</option>
+              <option value="Clases">Clases</option>
+              <option value="Examen">Examen</option>
+              <option value="Graduación">Graduación</option>
+              <option value="Feriado">Feriado</option>
+            </select>
+          </div>
+
+          <div class="form-grupo">
+            <label for="form-color">Color</label>
+            <input type="color" id="form-color" class="form-input" value="#022A6F"
+              style="height:40px;padding:2px;width:80px">
+          </div>
+
+          <div class="editor-acciones">
+            <button class="btn btn-primario" id="btn-guardar">Guardar</button>
+            <button class="btn btn-secundario" id="btn-cancelar">Cancelar</button>
+          </div>
+        </div>
+
+        <table class="admin-tabla">
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Tipo</th>
+              <th>Fecha Inicio</th>
+              <th>Fecha Fin</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-eventos"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script type="module">
+    await requiereAutenticacion('admin');
+
+    import { requiereAutenticacion, getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
+    import { supabase } from '/assets/js/supabase-client.js';
+    import { initAdmin } from '/admin/admin.js';
+    import { sanitizar } from '/assets/js/utils.js';
+
+    await initAdmin();
+
+    /* ─── State ─────────────────────────────────── */
+    let modoEdicion = false;
+    let eventoEditandoId = null;
+
+    /* ─── DOM references ────────────────────────── */
+    const $ = (id) => document.getElementById(id);
+    const editorForm = $('editor-form');
+    const formTitulo = $('form-titulo');
+    const eventoId = $('evento-id');
+    const formTituloInput = $('form-titulo-input');
+    const formDescripcion = $('form-descripcion');
+    const formFechaInicio = $('form-fecha-inicio');
+    const formFechaFin = $('form-fecha-fin');
+    const formTipo = $('form-tipo');
+    const formColor = $('form-color');
+    const btnGuardar = $('btn-guardar');
+    const btnCancelar = $('btn-cancelar');
+    const btnNuevo = $('btn-nuevo-evento');
+    const tablaEventos = $('tabla-eventos');
+    const mensaje = $('admin-mensaje');
+
+    /* ─── Message helper ────────────────────────── */
+    function mostrarMensaje(texto, tipo) {
+      mensaje.textContent = texto;
+      mensaje.className = 'admin-mensaje ' + tipo;
+      setTimeout(() => {
+        mensaje.className = 'admin-mensaje';
+        mensaje.textContent = '';
+      }, 3000);
+    }
+
+    /* ─── Load events ──────────────────────────── */
+    async function cargarEventos() {
+      try {
+        const { data, error } = await supabase
+          .from('calendario_eventos')
+          .select('*')
+          .order('fecha_inicio', { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          tablaEventos.innerHTML = '<tr><td colspan="5" class="empty-state">No hay eventos aún</td></tr>';
+          return;
+        }
+
+        tablaEventos.innerHTML = data.map(e => {
+          const titulo = sanitizar(e.titulo.length > 60 ? e.titulo.slice(0, 60) + '...' : e.titulo);
+          const tipo = `<span class="badge badge-categoria">${sanitizar(e.tipo)}</span>`;
+          const fechaInicio = e.fecha_inicio ? sanitizar(e.fecha_inicio) : '—';
+          const fechaFin = e.fecha_fin ? sanitizar(e.fecha_fin) : '—';
+          return `<tr>
+            <td>${titulo}</td>
+            <td>${tipo}</td>
+            <td>${fechaInicio}</td>
+            <td>${fechaFin}</td>
+            <td>
+              <button class="btn btn-sm btn-primario btn-editar" data-id="${e.id}">Editar</button>
+              <button class="btn btn-sm btn-peligro btn-eliminar" data-id="${e.id}">Eliminar</button>
+            </td>
+          </tr>`;
+        }).join('');
+      } catch (err) {
+        console.error('Error al cargar eventos:', err);
+        tablaEventos.innerHTML = '<tr><td colspan="5" class="empty-state error">Error al cargar los datos: ' + err.message + '</td></tr>';
+      }
+    }
+
+    /* ─── Show / Hide form ──────────────────────── */
+    function mostrarFormulario() {
+      editorForm.style.display = 'block';
+    }
+
+    function ocultarFormulario() {
+      editorForm.style.display = 'none';
+      formTitulo.textContent = 'Crear Evento';
+      eventoId.value = '';
+      formTituloInput.value = '';
+      formDescripcion.value = '';
+      formFechaInicio.value = '';
+      formFechaFin.value = '';
+      formTipo.value = 'General';
+      formColor.value = '#022A6F';
+      modoEdicion = false;
+      eventoEditandoId = null;
+    }
+
+    /* ─── Nuevo evento ──────────────────────────── */
+    btnNuevo.addEventListener('click', () => {
+      ocultarFormulario();
+      modoEdicion = false;
+      mostrarFormulario();
+    });
+
+    /* ─── Cancelar ──────────────────────────────── */
+    btnCancelar.addEventListener('click', ocultarFormulario);
+
+    /* ─── Editar (event delegation) ─────────────── */
+    tablaEventos.addEventListener('click', async (e) => {
+      const btnEditar = e.target.closest('.btn-editar');
+      if (!btnEditar) return;
+
+      const id = btnEditar.dataset.id;
+      try {
+        const { data, error } = await supabase
+          .from('calendario_eventos')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+        if (!data) throw new Error('Evento no encontrado');
+
+        eventoId.value = data.id;
+        formTituloInput.value = data.titulo || '';
+        formDescripcion.value = data.descripcion || '';
+        formFechaInicio.value = data.fecha_inicio || '';
+        formFechaFin.value = data.fecha_fin || '';
+        formTipo.value = data.tipo || 'General';
+        formColor.value = data.color || '#022A6F';
+        modoEdicion = true;
+        eventoEditandoId = data.id;
+        formTitulo.textContent = 'Editar Evento';
+        mostrarFormulario();
+      } catch (err) {
+        console.error('Error al cargar evento:', err);
+        mostrarMensaje('Error al cargar el evento: ' + err.message, 'error');
+      }
+    });
+
+    /* ─── Guardar ───────────────────────────────── */
+    btnGuardar.addEventListener('click', async () => {
+      try {
+        const titulo = formTituloInput.value.trim();
+        const descripcion = formDescripcion.value.trim();
+        const fecha_inicio = formFechaInicio.value;
+        const fecha_fin = formFechaFin.value || null;
+        const tipo = formTipo.value;
+        const color = formColor.value;
+
+        if (!titulo) {
+          mostrarMensaje('El título es obligatorio', 'error');
+          return;
+        }
+        if (!fecha_inicio) {
+          mostrarMensaje('La fecha de inicio es obligatoria', 'error');
+          return;
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!modoEdicion) {
+          const { error } = await supabase
+            .from('calendario_eventos')
+            .insert({
+              titulo,
+              descripcion,
+              fecha_inicio,
+              fecha_fin,
+              tipo,
+              color,
+              creado_por: user.id
+            })
+            .select()
+            .single();
+
+          if (error) throw error;
+          mostrarMensaje('Evento creado exitosamente', 'exito');
+        } else {
+          const { error } = await supabase
+            .from('calendario_eventos')
+            .update({
+              titulo,
+              descripcion,
+              fecha_inicio,
+              fecha_fin,
+              tipo,
+              color
+            })
+            .eq('id', eventoEditandoId);
+
+          if (error) throw error;
+          mostrarMensaje('Evento actualizado exitosamente', 'exito');
+        }
+
+        ocultarFormulario();
+        await cargarEventos();
+      } catch (err) {
+        console.error('Error al guardar evento:', err);
+        mostrarMensaje('Error al guardar el evento: ' + err.message, 'error');
+      }
+    });
+
+    /* ─── Eliminar (event delegation) ───────────── */
+    tablaEventos.addEventListener('click', async (e) => {
+      const btnEliminar = e.target.closest('.btn-eliminar');
+      if (!btnEliminar) return;
+
+      const id = btnEliminar.dataset.id;
+      if (!confirm('¿Seguro que deseas eliminar este evento?')) return;
+
+      try {
+        const { error } = await supabase
+          .from('calendario_eventos')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        mostrarMensaje('Evento eliminado exitosamente', 'exito');
+        await cargarEventos();
+      } catch (err) {
+        console.error('Error al eliminar evento:', err);
+        mostrarMensaje('Error al eliminar el evento: ' + err.message, 'error');
+      }
+    });
+
+    /* ─── Mobile toggle ─────────────────────────── */
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('admin-toggle-btn');
+      const sidebar = document.getElementById('admin-sidebar');
+      if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('abierto');
+        });
+      }
+    });
+
+    /* ─── Init ──────────────────────────────────── */
+    await cargarEventos();
+  </script>
+</body>
+
+</html>

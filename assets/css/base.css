@@ -214,12 +214,14 @@ a:hover {
   z-index: 9999;
   visibility: hidden;
   opacity: 0;
+  pointer-events: none;
   transition: opacity var(--t), visibility var(--t);
 }
 
 .spinner--activo {
   visibility: visible;
   opacity: 1;
+  pointer-events: auto;
 }
 
 .spinner__circulo {

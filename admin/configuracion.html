@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Configuración del Sitio — UNEXCA">
+  <title>Configuración — UNEXCA</title>
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+
+<body>
+  <div id="spinner" class="spinner" style="display:none;">
+    <div class="spinner-circle"></div>
+  </div>
+
+  <div id="navbar-placeholder"></div>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <button class="admin-toggle-btn" id="admin-toggle-btn" aria-label="Abrir menú">☰</button>
+      <div class="admin-sidebar-logo">
+        <img src="/assets/img/logo-white.png" alt="UNEXCA" height="40">
+      </div>
+      <nav>
+        <ul class="admin-nav admin-sidebar-nav">
+          <li><a href="/admin/"><span>📊</span> Dashboard</a></li>
+          <li><a href="/admin/usuarios.html"><span>👥</span> Usuarios</a></li>
+          <li><a href="/admin/wiki-editor.html"><span>📖</span> Wiki</a></li>
+          <li><a href="/admin/faq-editor.html"><span>❓</span> FAQ</a></li>
+          <li><a href="/admin/noticias-editor.html"><span>📰</span> Noticias</a></li>
+          <li><a href="/admin/documentos-editor.html"><span>📄</span> Documentos</a></li>
+          <li><a href="/admin/calendario-editor.html"><span>📅</span> Calendario</a></li>
+          <li><a href="/admin/configuracion.html"><span>⚙️</span> Configuración</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="container">
+        <div class="admin-header">
+          <h1>Configuración del Sitio</h1>
+        </div>
+
+        <div id="admin-mensaje" class="admin-mensaje"></div>
+
+        <form class="editor-form" id="config-form">
+          <h2>Información del Sitio</h2>
+          <div class="config-grid">
+            <div class="form-grupo">
+              <label for="cfg-nombre_sitio">Nombre del Sitio</label>
+              <input type="text" id="cfg-nombre_sitio" class="form-input">
+            </div>
+            <div class="form-grupo">
+              <label for="cfg-descripcion_sitio">Descripción del Sitio (SEO)</label>
+              <textarea id="cfg-descripcion_sitio" class="form-input" rows="3"></textarea>
+            </div>
+          </div>
+
+          <h2>Redes Sociales</h2>
+          <div class="config-grid">
+            <div class="form-grupo">
+              <label for="cfg-instagram_url">Instagram URL</label>
+              <input type="url" id="cfg-instagram_url" class="form-input"
+                placeholder="https://www.instagram.com/unexca">
+            </div>
+            <div class="form-grupo">
+              <label for="cfg-whatsapp_url">WhatsApp URL</label>
+              <input type="url" id="cfg-whatsapp_url" class="form-input" placeholder="https://wa.me/584120000000">
+            </div>
+            <div class="form-grupo">
+              <label for="cfg-telegram_url">Telegram URL</label>
+              <input type="url" id="cfg-telegram_url" class="form-input" placeholder="https://t.me/unexca">
+            </div>
+          </div>
+
+          <div class="editor-acciones">
+            <button class="btn btn-primario" id="btn-guardar">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script type="module">
+    await requiereAutenticacion('admin');
+
+    import { requiereAutenticacion, getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
+    import { supabase } from '/assets/js/supabase-client.js';
+    import { initAdmin } from '/admin/admin.js';
+
+    await initAdmin();
+
+    /* ─── Cargar configuración ──────────────────── */
+
+    async function cargarConfiguracion() {
+      try {
+        const { data, error } = await supabase
+          .from('configuracion_sitio')
+          .select('*');
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          data.forEach(row => {
+            const el = document.getElementById('cfg-' + row.clave);
+            if (el) {
+              el.value = row.valor || '';
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Error al cargar configuración:', err);
+        const msg = document.getElementById('admin-mensaje');
+        msg.textContent = 'Error al cargar la configuración: ' + err.message;
+        msg.className = 'admin-mensaje error';
+      }
+    }
+
+    /* ─── Guardar configuración ─────────────────── */
+
+    async function guardarConfiguracion() {
+      const btn = document.getElementById('btn-guardar');
+      btn.disabled = true;
+      btn.textContent = 'Guardando...';
+
+      try {
+        const claves = ['instagram_url', 'whatsapp_url', 'telegram_url', 'nombre_sitio', 'descripcion_sitio'];
+
+        for (const key of claves) {
+          const valor = document.getElementById('cfg-' + key).value;
+
+          const { error } = await supabase
+            .from('configuracion_sitio')
+            .update({ valor })
+            .eq('clave', key);
+
+          if (error) throw error;
+        }
+
+        const msg = document.getElementById('admin-mensaje');
+        msg.textContent = 'Configuración guardada correctamente';
+        msg.className = 'admin-mensaje exito';
+
+        setTimeout(() => {
+          msg.className = 'admin-mensaje';
+          msg.textContent = '';
+        }, 3000);
+      } catch (err) {
+        console.error('Error al guardar configuración:', err);
+        const msg = document.getElementById('admin-mensaje');
+        msg.textContent = 'Error al guardar la configuración: ' + err.message;
+        msg.className = 'admin-mensaje error';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Guardar Cambios';
+      }
+    }
+
+    /* ─── Event Listeners ───────────────────────── */
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('admin-toggle-btn');
+      const sidebar = document.getElementById('admin-sidebar');
+      if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('abierto');
+        });
+      }
+
+      document.getElementById('btn-guardar').addEventListener('click', (e) => {
+        e.preventDefault();
+        guardarConfiguracion();
+      });
+    });
+
+    cargarConfiguracion();
+  </script>
+</body>
+
+</html>

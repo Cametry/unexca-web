@@ -26,7 +26,14 @@ export function ocultarError(idContenedor = 'alerta-error') {
 
 export function mostrarCarga(mostrar) {
   const el = document.getElementById('spinner');
-  if (el) el.style.display = mostrar ? 'flex' : 'none';
+  if (!el) return;
+  if (mostrar) {
+    el.classList.add('spinner--activo');
+    el.style.display = 'flex';
+  } else {
+    el.classList.remove('spinner--activo');
+    el.style.display = 'none';
+  }
 }
 
 export function sanitizar(texto) {

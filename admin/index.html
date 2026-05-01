@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Panel de administración de UNEXCA — Dashboard">
+  <title>Dashboard — UNEXCA</title>
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+
+<body>
+  <div id="spinner" class="spinner" style="display:none;">
+    <div class="spinner-circle"></div>
+  </div>
+
+  <div id="navbar-placeholder"></div>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <button class="admin-toggle-btn" id="admin-toggle-btn" aria-label="Abrir menú">☰</button>
+      <div class="admin-sidebar-logo">
+        <img src="/assets/img/logo-white.png" alt="UNEXCA" height="40">
+      </div>
+      <nav>
+        <ul class="admin-nav admin-sidebar-nav">
+          <li><a href="/admin/" class="activo"><span>📊</span> Dashboard</a></li>
+          <li><a href="/admin/usuarios.html"><span>👥</span> Usuarios</a></li>
+          <li><a href="/admin/wiki-editor.html"><span>📖</span> Wiki</a></li>
+          <li><a href="/admin/faq-editor.html"><span>❓</span> FAQ</a></li>
+          <li><a href="/admin/noticias-editor.html"><span>📰</span> Noticias</a></li>
+          <li><a href="/admin/documentos-editor.html"><span>📄</span> Documentos</a></li>
+          <li><a href="/admin/calendario-editor.html"><span>📅</span> Calendario</a></li>
+          <li><a href="/admin/configuracion.html"><span>⚙️</span> Configuración</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="container">
+        <div class="admin-header">
+          <h1>Panel de Administración</h1>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card stat-usuarios">
+            <span class="stat-numero" id="stat-usuarios">0</span>
+            <span class="stat-label">Usuarios Registrados</span>
+          </div>
+          <div class="stat-card stat-wiki">
+            <span class="stat-numero" id="stat-wiki">0</span>
+            <span class="stat-label">Artículos Wiki</span>
+          </div>
+          <div class="stat-card stat-faq">
+            <span class="stat-numero" id="stat-faq">0</span>
+            <span class="stat-label">Preguntas FAQ</span>
+          </div>
+          <div class="stat-card stat-noticias">
+            <span class="stat-numero" id="stat-noticias">0</span>
+            <span class="stat-label">Noticias Publicadas</span>
+          </div>
+        </div>
+
+        <section class="quick-actions">
+          <h2>Acciones Rápidas</h2>
+          <div class="acciones-grid">
+            <a href="/admin/wiki-editor.html?accion=crear" class="accion-rapida">➕ Nuevo Artículo</a>
+            <a href="/admin/noticias-editor.html?accion=crear" class="accion-rapida">➕ Nueva Noticia</a>
+            <a href="/admin/calendario-editor.html?accion=crear" class="accion-rapida">➕ Nuevo Evento</a>
+            <a href="/admin/usuarios.html" class="accion-rapida">👥 Gestionar Usuarios</a>
+          </div>
+        </section>
+
+        <section class="recent-news">
+          <h2>Últimas Noticias Creadas</h2>
+          <table class="admin-tabla">
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Categoría</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-ultimas-noticias"></tbody>
+          </table>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script type="module">
+    import { requiereAutenticacion, getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
+    import { supabase } from '/assets/js/supabase-client.js';
+    import { initAdmin, cargarEstadisticas } from '/admin/admin.js';
+    import { formatearFecha } from '/assets/js/utils.js';
+
+    async function init() {
+      await requiereAutenticacion('admin');
+      await initAdmin();
+      await initDashboard();
+    }
+
+    async function initDashboard() {
+      try {
+
+        const stats = await cargarEstadisticas();
+
+        document.getElementById('stat-usuarios').textContent = stats.totalUsuarios ?? 0;
+        document.getElementById('stat-wiki').textContent = stats.totalWiki ?? 0;
+        document.getElementById('stat-faq').textContent = stats.totalFaq ?? 0;
+        document.getElementById('stat-noticias').textContent = stats.totalNoticias ?? 0;
+
+        const { data: noticias, error } = await supabase
+          .from('noticias')
+          .select('titulo, categoria, publicado, publicado_en')
+          .order('publicado_en', { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+
+        const tbody = document.getElementById('tabla-ultimas-noticias');
+
+        if (!noticias || noticias.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No hay noticias aún</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = noticias.map(n => {
+          const titulo = sanitizar(n.titulo);
+          const categoria = sanitizar(n.categoria || 'General');
+          const estado = n.publicado
+            ? '<span class="badge badge-publicado">Publicado</span>'
+            : '<span class="badge badge-borrador">Borrador</span>';
+          const fecha = n.publicado_en ? formatearFecha(n.publicado_en) : '—';
+          return `<tr>
+                        <td>${titulo}</td>
+                        <td><span class="badge badge-categoria">${categoria}</span></td>
+                        <td>${estado}</td>
+                        <td>${fecha}</td>
+                    </tr>`;
+        }).join('');
+
+      } catch (err) {
+        console.error('Error al cargar el dashboard:', err);
+        const tbody = document.getElementById('tabla-ultimas-noticias');
+        if (tbody) {
+          tbody.innerHTML = `<tr><td colspan="4" class="empty-state error">Error al cargar los datos: ${err.message}</td></tr>`;
+        }
+      }
+    }
+
+    function sanitizar(str) {
+      if (typeof str !== 'string') return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('admin-toggle-btn');
+      const sidebar = document.getElementById('admin-sidebar');
+      if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('abierto');
+        });
+      }
+    });
+
+    init();
+  </script>
+</body>
+
+</html>

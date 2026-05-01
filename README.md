@@ -55,7 +55,7 @@ unexca-web/
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/unexca-web.git
+git clone https://github.com/Cametry/unexca-web
 cd unexca-web
 ```
 
