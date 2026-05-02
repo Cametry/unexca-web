@@ -55,3 +55,34 @@ export function setAnioActual(idElemento = 'anio-actual') {
   const el = document.getElementById(idElemento);
   if (el) el.textContent = new Date().getFullYear();
 }
+
+export function initHamburguesa() {
+  const hamburguesa = document.getElementById('btn-hamburguesa');
+  const menu = document.getElementById('navbar-menu');
+  if (!hamburguesa || !menu) return;
+
+  hamburguesa.addEventListener('click', function (e) {
+    e.stopPropagation();
+    const expanded = this.getAttribute('aria-expanded') === 'true' ? false : true;
+    menu.classList.toggle('navbar-menu--abierto');
+    this.classList.toggle('activo');
+    this.setAttribute('aria-expanded', expanded);
+
+    // Lock body scroll when menu is open
+    if (expanded) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  });
+
+  // Cerrar menú al hacer clic en un enlace
+  menu.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      menu.classList.remove('navbar-menu--abierto');
+      hamburguesa.classList.remove('activo');
+      hamburguesa.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = ''; // Restore scroll
+    });
+  });
+}

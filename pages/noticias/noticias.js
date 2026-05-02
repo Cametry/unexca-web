@@ -1,6 +1,6 @@
 import { supabase } from '/assets/js/supabase-client.js';
 import { getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
-import { formatearFecha, truncar, getParamURL, mostrarCarga, incluirComponente, setAnioActual, sanitizar, mostrarError, ocultarError } from '/assets/js/utils.js';
+import { formatearFecha, truncar, getParamURL, mostrarCarga, incluirComponente, setAnioActual, sanitizar, mostrarError, ocultarError, initHamburguesa } from '/assets/js/utils.js';
 
 /* ─── Inicialización ─────────────────────────── */
 
@@ -8,6 +8,7 @@ async function init() {
   await incluirComponente('#navbar-placeholder', '/components/navbar.html');
   await incluirComponente('#footer-placeholder', '/components/footer.html');
   await actualizarNavbar();
+  initHamburguesa();
   setAnioActual();
   mostrarCarga(true);
   await ejecutarModulo();
@@ -65,7 +66,7 @@ async function cargarNoticias(categoria = null) {
         : `<div class="card-imagen-placeholder"><span class="badge badge-categoria">${sanitizar(n.categoria)}</span></div>`;
 
       return `
-        <a href="/pages/noticias/noticia.html?id=${n.id}" class="card card--noticia">
+        <a href="/pages/noticias/noticia?id=${n.id}" class="card card--noticia">
           ${portadaHtml}
           <div class="card-body">
             <span class="badge badge-categoria">${sanitizar(n.categoria)}</span>
@@ -176,7 +177,7 @@ async function cargarNoticia() {
       const rol = usuario?.perfil?.rol;
       if (rol === 'personal' || rol === 'admin') {
         btnEditar.style.display = 'inline-flex';
-        btnEditar.href = `/pages/noticias/editar.html?id=${noticiaId}`;
+        btnEditar.href = `/pages/noticias/editar?id=${noticiaId}`;
       }
     }
   } catch (e) {

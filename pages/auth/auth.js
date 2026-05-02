@@ -1,6 +1,6 @@
 import { supabase } from '/assets/js/supabase-client.js';
 import { getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
-import { mostrarCarga, incluirComponente, setAnioActual, mostrarError, ocultarError } from '/assets/js/utils.js';
+import { mostrarCarga, incluirComponente, setAnioActual, mostrarError, ocultarError, initHamburguesa } from '/assets/js/utils.js';
 
 console.log('✅ auth.js cargado correctamente');
 
@@ -180,6 +180,7 @@ async function init() {
   await incluirComponente('#navbar-placeholder', '/components/navbar.html');
   await incluirComponente('#footer-placeholder', '/components/footer.html');
   await actualizarNavbar();
+  initHamburguesa();
   setAnioActual();
 
   mostrarCarga(true);

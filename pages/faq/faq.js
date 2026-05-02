@@ -1,6 +1,6 @@
 import { supabase } from '/assets/js/supabase-client.js';
 import { getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
-import { mostrarCarga, incluirComponente, setAnioActual, sanitizar, mostrarError, ocultarError } from '/assets/js/utils.js';
+import { mostrarCarga, incluirComponente, setAnioActual, sanitizar, mostrarError, ocultarError, initHamburguesa } from '/assets/js/utils.js';
 
 /* ─── Estado ──────────────────────────────────── */
 let todasLasPreguntas = [];   // { categoria, pregunta, respuesta, itemEl }
@@ -12,6 +12,7 @@ async function init() {
   await incluirComponente('#navbar-placeholder', '/components/navbar.html');
   await incluirComponente('#footer-placeholder', '/components/footer.html');
   await actualizarNavbar();
+  initHamburguesa();
   setAnioActual();
   mostrarCarga(true);
   await cargarFAQ();

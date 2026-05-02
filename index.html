@@ -93,7 +93,7 @@
   <script type="module">
     import { supabase } from '/assets/js/supabase-client.js';
     import { getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
-    import { formatearFecha, truncar, mostrarCarga, incluirComponente, setAnioActual } from '/assets/js/utils.js';
+    import { formatearFecha, truncar, mostrarCarga, incluirComponente, setAnioActual, initHamburguesa } from '/assets/js/utils.js';
 
     async function init() {
       // 1. Cargar componentes
@@ -103,10 +103,13 @@
       // 2. Actualizar navbar según sesión
       await actualizarNavbar();
 
-      // 3. Año actual en footer
+      // 3. Inicializar menú hamburguesa
+      initHamburguesa();
+
+      // 4. Año actual en footer
       setAnioActual();
 
-      // 4. Cargar contenido
+      // 5. Cargar contenido
       mostrarCarga(true);
       await Promise.all([
         cargarNoticias(),
@@ -146,7 +149,7 @@
 
       if (grid) {
         grid.innerHTML = data.map(n => `
-          <a href="/pages/noticias/noticia.html?id=${n.id}" class="card" style="text-decoration:none;color:inherit">
+          <a href="/pages/noticias/noticia?id=${n.id}" class="card" style="text-decoration:none;color:inherit">
             ${n.portada_url ? `<img src="${n.portada_url}" alt="${n.titulo}" class="card-imagen" loading="lazy">` : ''}
             <div class="card-body">
               <span class="badge badge-rol badge-estudiante" style="margin-bottom:var(--s2);display:inline-block">${n.categoria}</span>
@@ -224,21 +227,6 @@
 
     init().catch(console.error);
   </script>
-
-    <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const hamburguesa=document.getElementById('btn-hamburguesa');
-    const menu=document.getElementById('navbar-menu');
-
-    if (hamburguesa && menu) {
-      hamburguesa.addEventListener('click', function() {
-          menu.classList.toggle('navbar-menu--abierto');
-          const expanded=hamburguesa.getAttribute('aria-expanded')==='true' ? 'false' : 'true';
-          hamburguesa.setAttribute('aria-expanded', expanded);
-        });
-    }
-  });
-    </script>
 </body>
 
 </html>

@@ -1,6 +1,6 @@
 import { supabase } from '/assets/js/supabase-client.js';
 import { getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
-import { formatearFecha, mostrarCarga, incluirComponente, setAnioActual, sanitizar, mostrarError, ocultarError } from '/assets/js/utils.js';
+import { formatearFecha, mostrarCarga, incluirComponente, setAnioActual, sanitizar, mostrarError, ocultarError, initHamburguesa } from '/assets/js/utils.js';
 
 /* ─── Helpers ─────────────────────────────── */
 
@@ -113,6 +113,9 @@ async function cargarEventos() {
     const proximos = resultadoProximos.data;
     const todos = resultadoTodos.data;
 
+    console.log('📅 Próximos eventos:', proximos);
+    console.log('📅 Todos los eventos:', todos);
+
     /* ─── Próximos eventos ─── */
     if (!proximos || proximos.length === 0) {
       contenedorProximos.innerHTML = '';
@@ -160,6 +163,7 @@ async function init() {
   await incluirComponente('#navbar-placeholder', '/components/navbar.html');
   await incluirComponente('#footer-placeholder', '/components/footer.html');
   await actualizarNavbar();
+  initHamburguesa();
   setAnioActual();
   mostrarCarga(true);
   await Promise.all([

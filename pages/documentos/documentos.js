@@ -1,6 +1,6 @@
 import { supabase } from '/assets/js/supabase-client.js';
 import { getUsuarioActual, actualizarNavbar, requiereAutenticacion } from '/assets/js/auth.js';
-import { mostrarCarga, incluirComponente, setAnioActual, sanitizar, mostrarError } from '/assets/js/utils.js';
+import { mostrarCarga, incluirComponente, setAnioActual, sanitizar, mostrarError, initHamburguesa } from '/assets/js/utils.js';
 
 /**
  * Renderiza un mensaje de estado vacío para una categoría.
@@ -137,6 +137,7 @@ async function init() {
   await incluirComponente('#navbar-placeholder', '/components/navbar.html');
   await incluirComponente('#footer-placeholder', '/components/footer.html');
   await actualizarNavbar();
+  initHamburguesa();
   setAnioActual();
   mostrarCarga(true);
   await cargarDocumentos();

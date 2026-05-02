@@ -1,6 +1,6 @@
 import { supabase } from '/assets/js/supabase-client.js';
 import { getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
-import { formatearFecha, mostrarCarga, incluirComponente, setAnioActual, getParamURL, sanitizar, mostrarError, ocultarError } from '/assets/js/utils.js';
+import { formatearFecha, mostrarCarga, incluirComponente, setAnioActual, getParamURL, sanitizar, mostrarError, ocultarError, initHamburguesa } from '/assets/js/utils.js';
 
 /* ─── Inicialización ─────────────────────────── */
 
@@ -8,6 +8,7 @@ async function init() {
   await incluirComponente('#navbar-placeholder', '/components/navbar.html');
   await incluirComponente('#footer-placeholder', '/components/footer.html');
   await actualizarNavbar();
+  initHamburguesa();
   setAnioActual();
   mostrarCarga(true);
   await ejecutarModulo();
@@ -19,9 +20,9 @@ async function init() {
 async function ejecutarModulo() {
   const path = window.location.pathname;
 
-  if (path.endsWith('categoria.html') || path.endsWith('categoria/')) {
+  if (path.endsWith('categoria.html') || path.endsWith('categoria/') || path.endsWith('categoria')) {
     await cargarArticulos();
-  } else if (path.endsWith('articulo.html') || path.endsWith('articulo/')) {
+  } else if (path.endsWith('articulo.html') || path.endsWith('articulo/') || path.endsWith('articulo')) {
     await cargarArticulo();
   } else {
     await cargarCategorias();
@@ -36,10 +37,10 @@ async function cargarCategorias() {
   const sinResultados = document.getElementById('sin-resultados');
 
   try {
-    // Obtener todas las categorías ordenadas
+    // Obtener todas las categorías ordenadas con conteo de artículos
     const { data: categorias, error } = await supabase
       .from('wiki_categorias')
-      .select('id, nombre, descripcion, icono, orden')
+      .select('id, nombre, descripcion, icono, orden, wiki_articulos(count)')
       .order('orden', { ascending: true });
 
     if (error) throw error;
@@ -50,27 +51,11 @@ async function cargarCategorias() {
       return;
     }
 
-    // Obtener conteo de artículos publicados por categoría
-    const { data: conteos, error: errCount } = await supabase
-      .from('wiki_articulos')
-      .select('categoria_id, id', { count: 'exact', head: false })
-      .eq('publicado', true);
-
-    if (errCount) throw errCount;
-
-    // Construir mapa de conteos: categoria_id -> cantidad
-    const mapaConteos = {};
-    if (conteos) {
-      conteos.forEach(a => {
-        mapaConteos[a.categoria_id] = (mapaConteos[a.categoria_id] || 0) + 1;
-      });
-    }
-
     sinResultados.style.display = 'none';
     contenedor.innerHTML = categorias.map(cat => {
-      const totalArticulos = mapaConteos[cat.id] || 0;
+      const totalArticulos = cat.wiki_articulos?.[0]?.count || 0;
       return `
-        <a href="/pages/wiki/categoria.html?id=${cat.id}" class="card card--categoria">
+        <a href="/pages/wiki/categoria?id=${cat.id}" class="card card--categoria">
           <div class="card-body">
             <div class="categoria-icono">${sanitizar(cat.icono || '📁')}</div>
             <h3 class="card-titulo">${sanitizar(cat.nombre)}</h3>
@@ -136,7 +121,7 @@ async function cargarArticulos() {
 
     sinResultados.style.display = 'none';
     contenedor.innerHTML = articulos.map(art => `
-      <a href="/pages/wiki/articulo.html?id=${art.id}" class="card card--articulo">
+      <a href="/pages/wiki/articulo?id=${art.id}" class="card card--articulo">
         <div class="card-body">
           <h3 class="card-titulo">${sanitizar(art.titulo)}</h3>
           <p class="card-texto">Última actualización: ${formatearFecha(art.actualizado_en)}</p>
@@ -208,7 +193,7 @@ async function cargarArticulo() {
     // Breadcrumb
     const migaCat = document.getElementById('miga-categoria');
     if (migaCat) {
-      migaCat.innerHTML = `<a href="/pages/wiki/categoria.html?id=${articulo.categoria_id}">${sanitizar(categoriaNombre)}</a>`;
+      migaCat.innerHTML = `<a href="/pages/wiki/categoria?id=${articulo.categoria_id}">${sanitizar(categoriaNombre)}</a>`;;
     }
     const migaArt = document.getElementById('miga-articulo');
     if (migaArt) migaArt.textContent = articulo.titulo;
@@ -216,7 +201,7 @@ async function cargarArticulo() {
     // Botón volver a categoría
     const btnVolver = document.getElementById('btn-volver-categoria');
     if (btnVolver) {
-      btnVolver.href = `/pages/wiki/categoria.html?id=${articulo.categoria_id}`;
+      btnVolver.href = `/pages/wiki/categoria?id=${articulo.categoria_id}`;
     }
 
     // Botón editar — visible solo si rol IN (personal, admin)
@@ -226,7 +211,7 @@ async function cargarArticulo() {
       const rol = usuario?.perfil?.rol;
       if (rol === 'personal' || rol === 'admin') {
         btnEditar.style.display = 'inline-flex';
-        btnEditar.href = `/pages/wiki/editar.html?id=${articuloId}`;
+        btnEditar.href = `/pages/wiki/editar?id=${articuloId}`;
       }
     }
   } catch (e) {

@@ -103,6 +103,7 @@
     transform: translateX(-100%);
     transition: transform var(--t-lenta);
     gap: 0;
+    z-index: 999;
   }
 
   .navbar-menu--abierto {
