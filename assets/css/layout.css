@@ -112,11 +112,12 @@
 
   .navbar-menu li {
     width: 100%;
+    min-height: 48px;
   }
 
   .nav-link {
     font-size: var(--texto-lg);
-    padding: var(--s4) 0;
+    padding: var(--s5) 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 }

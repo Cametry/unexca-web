@@ -20,7 +20,7 @@ async function init() {
 async function ejecutarModulo() {
   const path = window.location.pathname;
 
-  if (path.endsWith('noticia.html') || path.endsWith('noticia/')) {
+  if (path.endsWith('noticia.html') || path.endsWith('noticia/') || path.endsWith('noticia')) {
     await cargarNoticia();
   } else {
     await cargarNoticias(null);
@@ -107,6 +107,7 @@ function iniciarFiltros() {
 async function cargarNoticia() {
   ocultarError();
   const noticiaId = getParamURL('id');
+  console.log('[cargarNoticia] ID recibido:', noticiaId);
 
   if (!noticiaId) {
     mostrarError('No se especificó una noticia.');
@@ -121,6 +122,7 @@ async function cargarNoticia() {
       .eq('publicado', true)
       .single();
 
+    console.log('[cargarNoticia] Data de Supabase:', noticia);
     if (error) throw error;
 
     if (!noticia) {
