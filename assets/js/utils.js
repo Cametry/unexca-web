@@ -58,31 +58,35 @@ export function setAnioActual(idElemento = 'anio-actual') {
 
 export function initHamburguesa() {
   const hamburguesa = document.getElementById('btn-hamburguesa');
-  const menu = document.getElementById('navbar-menu');
-  if (!hamburguesa || !menu) return;
+  const drawer = document.getElementById('drawer');
+  const backdrop = document.getElementById('drawer-backdrop');
+  const closeBtn = document.getElementById('btn-cerrar-drawer');
+  if (!hamburguesa || !drawer) return;
 
-  hamburguesa.addEventListener('click', function (e) {
+  function openDrawer() {
+    drawer.classList.add('is-open');
+    if (backdrop) backdrop.classList.add('is-open');
+    if (backdrop) backdrop.setAttribute('aria-hidden', 'false');
+    drawer.setAttribute('aria-hidden', 'false');
+    hamburguesa.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer() {
+    drawer.classList.remove('is-open');
+    if (backdrop) backdrop.classList.remove('is-open');
+    if (backdrop) backdrop.setAttribute('aria-hidden', 'true');
+    drawer.setAttribute('aria-hidden', 'true');
+    hamburguesa.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  hamburguesa.addEventListener('click', (e) => {
     e.stopPropagation();
-    const expanded = this.getAttribute('aria-expanded') === 'true' ? false : true;
-    menu.classList.toggle('navbar-menu--abierto');
-    this.classList.toggle('activo');
-    this.setAttribute('aria-expanded', expanded);
-
-    // Lock body scroll when menu is open
-    if (expanded) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    const isOpen = drawer.classList.contains('is-open');
+    isOpen ? closeDrawer() : openDrawer();
   });
 
-  // Cerrar menú al hacer clic en un enlace
-  menu.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => {
-      menu.classList.remove('navbar-menu--abierto');
-      hamburguesa.classList.remove('activo');
-      hamburguesa.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = ''; // Restore scroll
-    });
-  });
+  if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+  if (backdrop) backdrop.addEventListener('click', closeDrawer);
 }

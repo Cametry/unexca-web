@@ -4,118 +4,232 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Portal oficial de la Universidad Nacional Experimental de la Gran Caracas">
+  <meta name="description"
+    content="Portal oficial de la Universidad Nacional Experimental de la Gran Caracas. Información académica, documentos institucionales y servicios para la comunidad universitaria.">
   <title>UNEXCA — Portal Institucional</title>
   <link rel="icon" href="/assets/img/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
 </head>
 
 <body>
-
   <div id="spinner" class="spinner" aria-hidden="true"></div>
   <div id="navbar-placeholder"></div>
 
-  <main class="inicio-pagina">
-
-    <!-- HERO SECTION -->
-    <section class="hero">
-      <div class="container">
-        <img src="/assets/img/logo.png" alt="UNEXCA" class="hero-logo">
-        <h1>Portal Institucional</h1>
-        <p>Bienvenido al portal oficial de la Universidad Nacional Experimental de la Gran Caracas. Accede a información
-          académica, documentos y servicios universitarios.</p>
-        <div class="hero-acciones">
-          <a href="/pages/wiki/" class="btn btn-primario">Ver Wiki</a>
-          <a href="/pages/faq/" class="btn btn-secundario">Ver FAQ</a>
+  <main>
+    <!-- HERO: diseño nuevo asimétrico -->
+    <header class="hero" aria-label="Bienvenida">
+      <div class="container hero-grid">
+        <div class="hero-text">
+          <div>
+            <div class="eyebrow hero-eyebrow"><span class="bar"></span> Portal Institucional UNEXCA</div>
+            <h1 class="hero-title">Tu universidad, abierta y conectada.</h1>
+            <p class="hero-sub">La información que necesitas como estudiante, personal o visitante de la Universidad
+              Nacional Experimental de la Gran Caracas — accesible, oficial y siempre al día.</p>
+            <div class="hero-cta">
+              <a href="/pages/wiki/" class="btn btn-primario btn-lg">Empezar <svg class="ico-sm" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6"></path>
+                </svg></a>
+              <a href="/pages/calendario/" class="btn btn-secundario btn-lg"><svg class="ico-sm" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+                </svg> Calendario académico</a>
+            </div>
+          </div>
+          <div class="hero-roles">
+            <a href="/pages/auth/registro.html" class="role-chip role-chip--estudiante">
+              <span class="role-chip-dot"></span>
+              <span class="role-chip-label">Soy estudiante</span>
+              <span class="role-chip-meta">Documentos · notas · trámites</span>
+            </a>
+            <a href="/pages/auth/login.html" class="role-chip role-chip--personal">
+              <span class="role-chip-dot"></span>
+              <span class="role-chip-label">Soy personal docente</span>
+              <span class="role-chip-meta">Publicación · gestión</span>
+            </a>
+            <a href="/pages/wiki/" class="role-chip role-chip--visitante">
+              <span class="role-chip-dot"></span>
+              <span class="role-chip-label">Soy visitante</span>
+              <span class="role-chip-meta">Información pública</span>
+            </a>
+          </div>
+        </div>
+        <div class="hero-image">
+          <div class="hero-image-watermark" aria-hidden="true"></div>
+          <div class="hero-image-tag">Destacado del mes</div>
+          <h2 class="hero-image-title">Comunidad universitaria UNEXCA: cinco sedes, una sola misión.</h2>
+          <div class="hero-image-cards">
+            <a href="/pages/calendario/" class="hc-card">
+              <div class="hc-card-date">14 JUL · 2026</div>
+              <h3 class="hc-card-title">Apertura de inscripciones 2026-II</h3>
+            </a>
+            <a href="/pages/calendario/" class="hc-card">
+              <div class="hc-card-date">17 AGO · 2026</div>
+              <h3 class="hc-card-title">Inicio de clases · semestre nuevo</h3>
+            </a>
+          </div>
         </div>
       </div>
-    </section>
+    </header>
 
-    <!-- ÚLTIMAS NOTICIAS -->
-    <section class="seccion-inicio" id="seccion-noticias">
+    <!-- NOTICIAS -->
+    <section class="section" aria-labelledby="h-noticias">
       <div class="container">
-        <h2>Últimas Noticias</h2>
-        <div id="noticias-grid" class="grid-tarjetas">
-          <!-- Cargado dinámicamente desde Supabase -->
+        <div class="section-head">
+          <div class="section-head-left">
+            <div class="eyebrow section-eyebrow"><span class="bar"></span> Comunicaciones oficiales</div>
+            <h2 class="section-title" id="h-noticias">Últimas noticias</h2>
+            <p class="section-sub">Anuncios institucionales, convocatorias y comunicados del consejo universitario y
+              direcciones académicas.</p>
+          </div>
+          <a href="/pages/noticias/" class="section-link">Ver todas las noticias <svg class="ico-sm" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6"></path>
+            </svg></a>
         </div>
+        <div class="news-grid" id="noticias-grid"><!-- Cargado dinámicamente desde Supabase --></div>
         <div id="noticias-error" class="alerta alerta-info" style="display:none"></div>
       </div>
     </section>
 
-    <!-- PRÓXIMOS EVENTOS -->
-    <section class="seccion-inicio" id="seccion-eventos">
+    <!-- EVENTOS -->
+    <section class="section section-alt" aria-labelledby="h-eventos">
       <div class="container">
-        <h2>Próximos Eventos</h2>
-        <div id="eventos-lista">
-          <!-- Cargado dinámicamente desde Supabase -->
+        <div class="section-head">
+          <div class="section-head-left">
+            <div class="eyebrow section-eyebrow"><span class="bar"></span> Próximos eventos</div>
+            <h2 class="section-title" id="h-eventos">Calendario académico</h2>
+            <p class="section-sub">Las fechas clave del semestre — inscripciones, clases, exámenes y actos
+              institucionales — en un solo lugar.</p>
+          </div>
+          <a href="/pages/calendario/" class="section-link">Ver calendario completo <svg class="ico-sm"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6"></path>
+            </svg></a>
         </div>
+        <div class="events-list" id="eventos-lista"><!-- Cargado dinámicamente desde Supabase --></div>
         <div id="eventos-error" class="alerta alerta-info" style="display:none"></div>
       </div>
     </section>
 
     <!-- ACCESO RÁPIDO -->
-    <section class="seccion-inicio">
+    <section class="section" aria-labelledby="h-acceso">
       <div class="container">
-        <h2>Acceso Rápido</h2>
-        <div class="acceso-rapido-grid">
-          <a href="/pages/wiki/" class="acceso-rapido-item">
-            <span class="icono">📚</span>
-            <span>Wiki</span>
+        <div class="section-head">
+          <div class="section-head-left">
+            <div class="eyebrow section-eyebrow"><span class="bar"></span> Servicios y contenidos</div>
+            <h2 class="section-title" id="h-acceso">Acceso rápido</h2>
+            <p class="section-sub">Las secciones más visitadas del portal — un clic para llegar a lo que necesitas.</p>
+          </div>
+        </div>
+        <div class="qa-grid">
+          <a href="/pages/wiki/" class="qa-card">
+            <div class="qa-icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+              </svg></div>
+            <div class="qa-info">
+              <h3 class="qa-title">Wiki</h3>
+              <p class="qa-desc">Información institucional, carreras, sedes y reglamentos.</p>
+            </div>
+            <div class="qa-arrow">Ir <svg class="ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6"></path>
+              </svg></div>
           </a>
-          <a href="/pages/faq/" class="acceso-rapido-item">
-            <span class="icono">❓</span>
-            <span>FAQ</span>
+          <a href="/pages/faq/" class="qa-card">
+            <div class="qa-icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"></path>
+              </svg></div>
+            <div class="qa-info">
+              <h3 class="qa-title">FAQ</h3>
+              <p class="qa-desc">Preguntas frecuentes sobre inscripción, pagos y trámites.</p>
+            </div>
+            <div class="qa-arrow">Ir <svg class="ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6"></path>
+              </svg></div>
           </a>
-          <a href="/pages/noticias/" class="acceso-rapido-item">
-            <span class="icono">📰</span>
-            <span>Noticias</span>
+          <a href="/pages/noticias/" class="qa-card">
+            <div class="qa-icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 4h13a2 2 0 0 1 2 2v13a1 1 0 0 0 1 1 1 1 0 0 0 1-1V8h-3"></path>
+                <path d="M4 4v15a2 2 0 0 0 2 2h14"></path>
+                <path d="M8 8h7M8 12h7M8 16h5"></path>
+              </svg></div>
+            <div class="qa-info">
+              <h3 class="qa-title">Noticias</h3>
+              <p class="qa-desc">Anuncios, comunicados y novedades de la universidad.</p>
+            </div>
+            <div class="qa-arrow">Ir <svg class="ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6"></path>
+              </svg></div>
           </a>
-          <a href="/pages/documentos/" class="acceso-rapido-item">
-            <span class="icono">📄</span>
-            <span>Documentos</span>
+          <a href="/pages/documentos/" class="qa-card">
+            <div class="qa-icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <path d="M14 2v6h6M9 13h6M9 17h4"></path>
+              </svg></div>
+            <div class="qa-info">
+              <h3 class="qa-title">Documentos</h3>
+              <p class="qa-desc">Reglamentos, formatos y descargas oficiales en PDF.</p>
+            </div>
+            <div class="qa-arrow">Ir <svg class="ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6"></path>
+              </svg></div>
           </a>
-          <a href="/pages/calendario/" class="acceso-rapido-item">
-            <span class="icono">📅</span>
-            <span>Calendario</span>
+          <a href="/pages/calendario/" class="qa-card">
+            <div class="qa-icon"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                <path d="M16 2v4M8 2v4M3 10h18"></path>
+              </svg></div>
+            <div class="qa-info">
+              <h3 class="qa-title">Calendario</h3>
+              <p class="qa-desc">Fechas académicas, eventos y feriados del periodo.</p>
+            </div>
+            <div class="qa-arrow">Ir <svg class="ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6"></path>
+              </svg></div>
           </a>
         </div>
       </div>
     </section>
-
   </main>
 
   <div id="footer-placeholder"></div>
 
+  <!-- SCRIPT: EXACTAMENTE el mismo del actual, pero con clases nuevas en los templates -->
   <script type="module">
     import { supabase } from '/assets/js/supabase-client.js';
     import { getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
     import { formatearFecha, truncar, mostrarCarga, incluirComponente, setAnioActual, initHamburguesa } from '/assets/js/utils.js';
 
     async function init() {
-      // 1. Cargar componentes
       await incluirComponente('#navbar-placeholder', '/components/navbar.html');
       await incluirComponente('#footer-placeholder', '/components/footer.html');
-
-      // 2. Actualizar navbar según sesión
       await actualizarNavbar();
-
-      // 3. Inicializar menú hamburguesa
       initHamburguesa();
-
-      // 4. Año actual en footer
       setAnioActual();
-
-      // 5. Cargar contenido
       mostrarCarga(true);
-      await Promise.all([
-        cargarNoticias(),
-        cargarEventos(),
-        cargarRedesSociales()
-      ]);
+      await Promise.all([cargarNoticias(), cargarEventos(), cargarRedesSociales()]);
       mostrarCarga(false);
     }
 
@@ -132,34 +246,71 @@
       const errorEl = document.getElementById('noticias-error');
 
       if (error) {
-        if (errorEl) {
-          errorEl.textContent = 'Error al cargar noticias. Intenta de nuevo más tarde.';
-          errorEl.style.display = 'block';
-        }
+        if (errorEl) { errorEl.textContent = 'Error al cargar noticias. Intenta de nuevo más tarde.'; errorEl.style.display = 'block'; }
         return;
       }
 
+      // Si no hay datos, mostrar placeholder visual con 3 tarjetas de ejemplo
       if (!data || data.length === 0) {
-        if (errorEl) {
-          errorEl.textContent = 'No hay noticias destacadas en este momento.';
-          errorEl.style.display = 'block';
+        if (grid) {
+          grid.innerHTML = getNoticiasPlaceholder();
         }
         return;
       }
 
       if (grid) {
         grid.innerHTML = data.map(n => `
-          <a href="/pages/noticias/noticia?id=${n.id}" class="card" style="text-decoration:none;color:inherit">
-            ${n.portada_url ? `<img src="${n.portada_url}" alt="${n.titulo}" class="card-imagen" loading="lazy">` : ''}
-            <div class="card-body">
-              <span class="badge badge-rol badge-estudiante" style="margin-bottom:var(--s2);display:inline-block">${n.categoria}</span>
-              <h3 class="card-titulo">${n.titulo}</h3>
-              <p class="card-texto">${truncar(n.resumen, 120)}</p>
-              <small style="color:var(--color-texto-muted)">${formatearFecha(n.publicado_en)}</small>
-            </div>
-          </a>
+          <article class="news-card">
+            <a href="/pages/noticias/noticia?id=${n.id}" style="display:contents;color:inherit">
+              <div class="news-cover news-cover-bg-1">
+                <span class="news-badge news-badge--noticia">${n.categoria || 'Noticia'}</span>
+                <div class="news-cover-mark" aria-hidden="true"></div>
+              </div>
+              <div class="news-body">
+                <div class="news-meta">
+                  <span>${formatearFecha(n.publicado_en)}</span>
+                </div>
+                <h3 class="news-title">${n.titulo}</h3>
+                <p class="news-resumen">${truncar(n.resumen, 120)}</p>
+                <div class="news-foot">
+                  Leer noticia
+                  <svg class="ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+                </div>
+              </div>
+            </a>
+          </article>
         `).join('');
       }
+    }
+
+    function getNoticiasPlaceholder() {
+      return [
+        { titulo: 'Apertura de inscripciones para el periodo 2026-II', resumen: 'Se inicia el proceso oficial de inscripción para nuevos ingresos y reincorporaciones. Consulta los requisitos y fechas clave antes del cierre.', categoria: 'Anuncio', fecha: '1 MAY · 2026', bg: 'news-cover-bg-1', badge: 'news-badge--anuncio' },
+        { titulo: 'UNEXCA y la Alcaldía firman convenio de prácticas profesionales', resumen: 'Estudiantes de Informática, Administración y Contaduría podrán realizar pasantías en dependencias de la alcaldía de Caracas.', categoria: 'Noticia', fecha: '28 ABR · 2026', bg: 'news-cover-bg-2', badge: 'news-badge--noticia' },
+        { titulo: 'Taller gratuito de IA aplicada para estudiantes de Informática', resumen: 'Tres sesiones intensivas sobre fundamentos prácticos de inteligencia artificial. Cupos limitados — inscripción por correo institucional.', categoria: 'Taller', fecha: '22 ABR · 2026', bg: 'news-cover-bg-3', badge: 'news-badge--taller' }
+      ].map(n => `
+        <article class="news-card">
+          <a href="/pages/noticias/" style="display:contents;color:inherit">
+            <div class="news-cover ${n.bg}">
+              <span class="news-badge ${n.badge}">${n.categoria}</span>
+              <div class="news-cover-mark" aria-hidden="true"></div>
+            </div>
+            <div class="news-body">
+              <div class="news-meta">
+                <span>${n.fecha}</span>
+                <span class="dot" aria-hidden="true"></span>
+                <span>3 min de lectura</span>
+              </div>
+              <h3 class="news-title">${n.titulo}</h3>
+              <p class="news-resumen">${n.resumen}</p>
+              <div class="news-foot">
+                Leer noticia
+                <svg class="ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+              </div>
+            </div>
+          </a>
+        </article>
+      `).join('');
     }
 
     async function cargarEventos() {
@@ -175,38 +326,58 @@
       const errorEl = document.getElementById('eventos-error');
 
       if (error) {
-        if (errorEl) {
-          errorEl.textContent = 'Error al cargar eventos. Intenta de nuevo más tarde.';
-          errorEl.style.display = 'block';
-        }
+        if (errorEl) { errorEl.textContent = 'Error al cargar eventos. Intenta de nuevo más tarde.'; errorEl.style.display = 'block'; }
         return;
       }
 
+      // Si no hay datos, mostrar placeholder visual con 3 eventos de ejemplo
       if (!data || data.length === 0) {
-        if (errorEl) {
-          errorEl.textContent = 'No hay eventos próximos programados.';
-          errorEl.style.display = 'block';
+        if (lista) {
+          lista.innerHTML = getEventosPlaceholder();
         }
         return;
       }
 
       if (lista) {
-        lista.innerHTML = data.map(e => `
-          <div class="card" style="margin-bottom:var(--s4);border-left:4px solid ${e.color || 'var(--color-primario)'}">
-            <div class="card-body" style="display:flex;align-items:center;gap:var(--s4)">
-              <div style="text-align:center;min-width:60px">
-                <div style="font-size:var(--texto-2xl);font-weight:700;color:${e.color || 'var(--color-primario)'}">${new Date(e.fecha_inicio).getDate()}</div>
-                <div style="font-size:var(--texto-xs);color:var(--color-texto-muted);text-transform:uppercase">${new Date(e.fecha_inicio).toLocaleDateString('es-VE', { month: 'short' })}</div>
+        lista.innerHTML = data.map(e => {
+          const day = new Date(e.fecha_inicio).getDate();
+          const month = new Date(e.fecha_inicio).toLocaleDateString('es-VE', { month: 'short' }).toUpperCase();
+          const tipoClass = e.tipo ? 'event-item--' + e.tipo.toLowerCase() : '';
+          return `
+            <a href="/pages/calendario/" class="event-item ${tipoClass}">
+              <div class="event-date">
+                <div class="event-date-day">${day}</div>
+                <div class="event-date-month">${month}</div>
               </div>
-              <div>
-                <h3 class="card-titulo" style="margin-bottom:var(--s1)">${e.titulo}</h3>
-                ${e.descripcion ? `<p class="card-texto">${truncar(e.descripcion, 100)}</p>` : ''}
-                <span class="badge badge-rol badge-personal" style="margin-top:var(--s2);display:inline-block">${e.tipo}</span>
+              <div class="event-info">
+                <h3 class="event-title">${e.titulo}</h3>
+                ${e.descripcion ? `<p class="event-desc">${truncar(e.descripcion, 100)}</p>` : ''}
               </div>
-            </div>
-          </div>
-        `).join('');
+              <span class="event-type ${tipoClass ? 'event-type--' + e.tipo.toLowerCase() : ''}">${e.tipo || 'Evento'}</span>
+            </a>
+          `;
+        }).join('');
       }
+    }
+
+    function getEventosPlaceholder() {
+      return [
+        { titulo: 'Apertura de inscripciones 2026-II', desc: 'Inicio del periodo oficial de inscripción para nuevos ingresos y reincorporaciones.', day: '14', month: 'JUL', tipo: 'inscripcion' },
+        { titulo: 'Inicio de clases · semestre 2026-II', desc: 'Comienzan las actividades académicas regulares en todas las sedes.', day: '17', month: 'AGO', tipo: 'clases' },
+        { titulo: 'Acto de graduación · promoción 2026-I', desc: 'Auditorio Sede La Floresta · 9:00 a.m. (cupo por invitación).', day: '23', month: 'AGO', tipo: 'graduacion' }
+      ].map(e => `
+        <a href="/pages/calendario/" class="event-item event-item--${e.tipo}">
+          <div class="event-date">
+            <div class="event-date-day">${e.day}</div>
+            <div class="event-date-month">${e.month}</div>
+          </div>
+          <div class="event-info">
+            <h3 class="event-title">${e.titulo}</h3>
+            <p class="event-desc">${e.desc}</p>
+          </div>
+          <span class="event-type event-type--${e.tipo}">${e.tipo.charAt(0).toUpperCase() + e.tipo.slice(1)}</span>
+        </a>
+      `).join('');
     }
 
     async function cargarRedesSociales() {

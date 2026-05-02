@@ -1,28 +1,56 @@
 <footer class="footer">
-  <div class="container footer-grid">
-    <div class="footer-marca">
-      <img src="/assets/img/logo-white.png" alt="UNEXCA" height="50">
-      <p>Universidad Nacional Experimental<br>de la Gran Caracas</p>
-    </div>
-    <div class="footer-redes">
-      <h4>Síguenos</h4>
-      <div class="redes-botones" id="redes-botones">
-        <!-- Cargado dinámicamente desde configuracion_sitio -->
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Columna 1: Marca -->
+      <div>
+        <div class="footer-brand-row">
+          <span class="footer-mark">
+            <img src="/assets/img/logo-unexca-white.png" alt="UNEXCA">
+          </span>
+          <span class="footer-brand-text">
+            <span class="footer-brand-name">UNEXCA</span>
+            <span class="footer-brand-sub">Portal Institucional</span>
+          </span>
+        </div>
+        <p class="footer-desc">Universidad Nacional Experimental de la Gran Caracas — institución pública dedicada a la
+          formación profesional y técnica de la región capital.</p>
+        <div class="footer-meta">
+          <span class="footer-meta-item"><span class="dot" aria-hidden="true"></span> 5 sedes en Caracas</span>
+          <span class="footer-meta-item"><span class="dot" aria-hidden="true"></span> +8.000 estudiantes</span>
+        </div>
+      </div>
+
+      <!-- Columna 2: Redes Sociales (con ID preservado) -->
+      <div>
+        <h4 class="footer-h">Síguenos</h4>
+        <div class="social-list" id="redes-botones">
+          <!-- Cargado dinámicamente desde configuracion_sitio -->
+        </div>
+      </div>
+
+      <!-- Columna 3: Acceso Rápido -->
+      <div>
+        <h4 class="footer-h">Acceso rápido</h4>
+        <ul class="footer-list">
+          <li><a href="/pages/wiki/">Wiki institucional</a></li>
+          <li><a href="/pages/faq/">Preguntas frecuentes</a></li>
+          <li><a href="/pages/noticias/">Noticias y anuncios</a></li>
+          <li><a href="/pages/documentos/">Centro de documentos</a></li>
+          <li><a href="/pages/calendario/">Calendario académico</a></li>
+          <li><a href="/pages/auth/login.html">Iniciar sesión</a></li>
+        </ul>
       </div>
     </div>
-    <div class="footer-links">
-      <h4>Acceso Rápido</h4>
-      <ul>
-        <li><a href="/pages/wiki/">Wiki Institucional</a></li>
-        <li><a href="/pages/faq/">Preguntas Frecuentes</a></li>
-        <li><a href="/pages/calendario/">Calendario</a></li>
-        <li><a href="/pages/documentos/">Documentos</a></li>
-      </ul>
-    </div>
   </div>
-  <div class="footer-copyright">
-    <div class="container">
-      <p>© <span id="anio-actual"></span> UNEXCA — Todos los derechos reservados</p>
+  <div class="footer-copy">
+    <div class="container footer-copy-row">
+      <span>© <span id="anio-actual"></span> UNEXCA — Todos los derechos reservados.</span>
+      <div class="footer-copy-links">
+        <a href="#">Términos</a>
+        <a href="#">Privacidad</a>
+        <a href="#">Accesibilidad</a>
+        <a href="#">Contacto</a>
+      </div>
     </div>
   </div>
 </footer>
