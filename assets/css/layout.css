@@ -9,6 +9,11 @@
   padding: 0 var(--s5);
 }
 
+main {
+  flex: 1;
+  padding-bottom: var(--s16);
+}
+
 @media (min-width:768px) {
   .container {
     padding: 0 var(--s8);
@@ -438,6 +443,7 @@
   padding: var(--s16) 0 0;
   position: relative;
   overflow: hidden;
+  margin-top: auto;
 }
 
 .footer::before {

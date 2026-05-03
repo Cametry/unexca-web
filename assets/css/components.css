@@ -1104,21 +1104,29 @@
   padding: var(--s4) var(--s5);
 }
 
-/* ─── LEGACY: Wiki ─── */
-.hero--wiki {
-  padding: var(--s12) 0;
+/* Hero variant for internal pages (gradient, centered, white text) */
+.hero--page {
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-dark));
+  color: var(--color-blanco);
+  padding: var(--s12) 0 var(--s8);
+  text-align: center;
+  margin-bottom: var(--s8);
 }
 
-.hero--wiki h1 {
+.hero--page h1 {
   font-size: var(--texto-3xl);
-  margin-bottom: var(--s3);
+  font-weight: 700;
+  margin: 0 0 var(--s2);
 }
 
-.hero--wiki p {
-  font-size: var(--texto-base);
-  max-width: 600px;
-  margin: 0 auto;
+.hero--page p {
+  font-size: var(--texto-lg);
   opacity: 0.9;
+  margin: 0;
+}
+
+.seccion-inicio {
+  padding: var(--s8) 0 var(--s16);
 }
 
 .miga-pan {
@@ -1204,7 +1212,7 @@
 }
 
 .wiki-articulo {
-  padding: var(--s8) 0;
+  padding: var(--s8) 0 var(--s16);
 }
 
 .wiki-titulo-pagina {
@@ -1644,4 +1652,166 @@
   gap: var(--s4);
   justify-content: center;
   flex-wrap: wrap;
+}
+
+/* ───── DOCUMENTOS ───── */
+.doc-section {
+  margin-bottom: var(--s10);
+}
+
+.doc-section-title {
+  font-size: var(--texto-2xl);
+  font-weight: 600;
+  color: var(--color-primario-dark);
+  padding-bottom: var(--s3);
+  border-bottom: 2px solid var(--color-primario);
+  margin-bottom: var(--s6);
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+
+.doc-section-title::before {
+  content: '\1F4C1';
+  font-size: 1.3rem;
+}
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s4);
+}
+
+@media (min-width: 576px) {
+  .doc-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .doc-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.doc-card {
+  background: var(--color-fondo-card);
+  border: 1px solid var(--color-borde-suave);
+  border-radius: var(--radio-lg);
+  padding: var(--s5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  transition: all var(--t);
+}
+
+.doc-card:hover {
+  box-shadow: var(--sombra-md);
+  transform: translateY(-2px);
+  border-color: var(--color-primario-light);
+}
+
+.doc-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s4);
+}
+
+.doc-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  line-height: 1;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  background: var(--capa-azul-06);
+  border-radius: var(--radio-md);
+  color: var(--color-primario);
+}
+
+.doc-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-info h3 {
+  font-size: var(--texto-base);
+  font-weight: 600;
+  margin: 0 0 var(--s1);
+  color: var(--color-texto-base);
+  line-height: 1.3;
+}
+
+.doc-info p {
+  font-size: var(--texto-sm);
+  color: var(--color-texto-suave);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.doc-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+
+.doc-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--fuente-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: var(--radio-full);
+}
+
+.doc-badge--categoria {
+  background: var(--capa-azul-06);
+  color: var(--color-primario);
+}
+
+.doc-badge--publico {
+  background: rgba(26, 122, 60, 0.12);
+  color: var(--color-exito);
+}
+
+.doc-badge--estudiante {
+  background: rgba(193, 120, 0, 0.12);
+  color: var(--color-advertencia);
+}
+
+.doc-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: var(--s3);
+  border-top: 1px solid var(--color-borde-suave);
+  margin-top: auto;
+}
+
+.doc-empty {
+  text-align: center;
+  padding: var(--s12) var(--s4);
+  color: var(--color-texto-muted);
+}
+
+.doc-empty-icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: var(--s4);
+  opacity: 0.5;
+}
+
+.doc-empty p {
+  font-size: var(--texto-base);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.doc-empty strong {
+  color: var(--color-texto-suave);
 }

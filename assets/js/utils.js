@@ -50,7 +50,28 @@ export async function incluirComponente(selector, ruta) {
     const html = await res.text();
     const el = document.querySelector(selector);
     if (el) el.innerHTML = html;
+    if (ruta.includes('navbar')) setNavActivo();
   } catch (e) { console.error('Error cargando componente:', ruta, e); }
+}
+
+export function setNavActivo() {
+  const path = window.location.pathname;
+  document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('is-active'));
+  let link;
+  if (path === '/' || path === '/index.html') {
+    link = document.querySelector('.nav-link[href="/"]');
+  } else if (path.includes('/wiki')) {
+    link = document.querySelector('.nav-link[href="/pages/wiki/"]');
+  } else if (path.includes('/noticias')) {
+    link = document.querySelector('.nav-link[href="/pages/noticias/"]');
+  } else if (path.includes('/documentos')) {
+    link = document.querySelector('.nav-link[href="/pages/documentos/"]');
+  } else if (path.includes('/calendario')) {
+    link = document.querySelector('.nav-link[href="/pages/calendario/"]');
+  } else if (path.includes('/faq')) {
+    link = document.querySelector('.nav-link[href="/pages/faq/"]');
+  }
+  if (link) link.classList.add('is-active');
 }
 
 export function setAnioActual(idElemento = 'anio-actual') {

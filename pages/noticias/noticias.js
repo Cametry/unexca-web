@@ -61,18 +61,27 @@ async function cargarNoticias(categoria = null) {
 
     sinResultados.style.display = 'none';
     contenedor.innerHTML = noticias.map(n => {
-      const portadaHtml = n.portada_url
-        ? `<img class="card-imagen" src="${sanitizar(n.portada_url)}" alt="${sanitizar(n.titulo)}" loading="lazy">`
-        : `<div class="card-imagen-placeholder"><span class="badge badge-categoria">${sanitizar(n.categoria)}</span></div>`;
+      const categoria = sanitizar(n.categoria);
+      const categoriaLower = categoria.toLowerCase();
+      const badgeClass = `news-badge news-badge--${categoriaLower}`;
 
       return `
-        <a href="/pages/noticias/noticia?id=${n.id}" class="card card--noticia">
-          ${portadaHtml}
-          <div class="card-body">
-            <span class="badge badge-categoria">${sanitizar(n.categoria)}</span>
-            <h3 class="card-titulo">${sanitizar(n.titulo)}</h3>
-            <p class="card-texto">${sanitizar(truncar(n.resumen, 150))}</p>
-            <span class="card-fecha">${formatearFecha(n.publicado_en)}</span>
+        <a href="/pages/noticias/noticia?id=${n.id}" class="news-card">
+          <div class="news-cover">
+            ${n.portada_url ? `<img src="${sanitizar(n.portada_url)}" alt="${sanitizar(n.titulo)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">` : ''}
+            <span class="${badgeClass}">${categoria}</span>
+            <span class="news-cover-mark"></span>
+          </div>
+          <div class="news-body">
+            <div class="news-meta">
+              <span>${formatearFecha(n.publicado_en)}</span>
+            </div>
+            <h3 class="news-title">${sanitizar(n.titulo)}</h3>
+            <p class="news-resumen">${sanitizar(truncar(n.resumen, 150))}</p>
+            <div class="news-foot">
+              <span>Leer más</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
           </div>
         </a>
       `;
@@ -166,7 +175,14 @@ async function cargarNoticia() {
 
     // Contenido
     const contenidoEl = document.getElementById('contenido-noticia');
-    if (contenidoEl) contenidoEl.innerHTML = noticia.contenido || '';
+    if (contenidoEl) {
+      const contenidoFormateado = (noticia.contenido || '')
+        .split('\n\n')
+        .filter(p => p.trim())
+        .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`)
+        .join('');
+      contenidoEl.innerHTML = contenidoFormateado;
+    }
 
     // Breadcrumb
     const migaEl = document.getElementById('miga-noticia');
@@ -179,7 +195,7 @@ async function cargarNoticia() {
       const rol = usuario?.perfil?.rol;
       if (rol === 'personal' || rol === 'admin') {
         btnEditar.style.display = 'inline-flex';
-        btnEditar.href = `/pages/noticias/editar?id=${noticiaId}`;
+        btnEditar.href = `/admin/noticias-editor.html?editar=${noticiaId}`;
       }
     }
   } catch (e) {

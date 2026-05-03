@@ -9,8 +9,8 @@ import { mostrarCarga, incluirComponente, setAnioActual, sanitizar, mostrarError
  */
 function renderVacio(categoria) {
   return `
-    <div class="documentos-vacio">
-      <span class="documentos-vacio-icono">📂</span>
+    <div class="doc-empty">
+      <span class="doc-empty-icon">📂</span>
       <p>No hay documentos disponibles en la categoría <strong>${sanitizar(categoria)}</strong>.</p>
     </div>
   `;
@@ -25,17 +25,24 @@ function renderDocumentoCard(doc) {
   const titulo = sanitizar(doc.titulo);
   const descripcion = doc.descripcion ? sanitizar(doc.descripcion) : '';
   const url = doc.archivo_url;
+  const categoria = doc.categoria ? sanitizar(doc.categoria) : 'General';
+  const acceso = doc.acceso_minimo || 'publico';
+  const accesoLower = acceso.toLowerCase();
 
   return `
-    <div class="documento-card">
-      <div class="documento-card-header">
-        <span class="documento-icono">📄</span>
-        <div class="documento-info">
+    <div class="doc-card">
+      <div class="doc-card-header">
+        <span class="doc-icon">📄</span>
+        <div class="doc-info">
           <h3>${titulo}</h3>
           ${descripcion ? `<p>${descripcion}</p>` : ''}
+          <div class="doc-badges">
+            <span class="doc-badge doc-badge--categoria">${categoria}</span>
+            <span class="doc-badge doc-badge--${accesoLower}">${acceso}</span>
+          </div>
         </div>
       </div>
-      <div class="documento-card-accion">
+      <div class="doc-card-footer">
         <a href="${url}" target="_blank" download class="btn btn-primario btn-sm">Descargar PDF</a>
       </div>
     </div>
@@ -54,9 +61,9 @@ function renderCategoria(categoria, documentos) {
     : renderVacio(categoria);
 
   return `
-    <section class="documentos-categoria">
-      <h2 class="documentos-categoria-titulo">${sanitizar(categoria)}</h2>
-      <div class="documentos-grid">
+    <section class="doc-section">
+      <h2 class="doc-section-title">${sanitizar(categoria)}</h2>
+      <div class="doc-grid">
         ${docsHtml}
       </div>
     </section>
@@ -99,8 +106,8 @@ async function cargarDocumentos() {
 
     if (!documentos || documentos.length === 0) {
       contenedor.innerHTML = `
-        <div class="documentos-vacio">
-          <span class="documentos-vacio-icono">📂</span>
+        <div class="doc-empty">
+          <span class="doc-empty-icon">📂</span>
           <p>No hay documentos disponibles en este momento. Vuelve más tarde.</p>
         </div>
       `;
@@ -120,8 +127,8 @@ async function cargarDocumentos() {
     }
     if (contenedor) {
       contenedor.innerHTML = `
-        <div class="documentos-vacio">
-          <span class="documentos-vacio-icono">⚠️</span>
+        <div class="doc-empty">
+          <span class="doc-empty-icon">⚠️</span>
           <p>Ocurrió un error al cargar los documentos. Por favor, recarga la página.</p>
         </div>
       `;

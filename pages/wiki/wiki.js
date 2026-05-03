@@ -188,7 +188,12 @@ async function cargarArticulo() {
     document.getElementById('articulo-titulo').textContent = articulo.titulo;
     document.getElementById('articulo-autor').textContent = `Por: ${autorNombre}`;
     document.getElementById('articulo-fecha').textContent = `Actualizado: ${formatearFecha(articulo.actualizado_en)}`;
-    document.getElementById('contenido-articulo').innerHTML = articulo.contenido || '';
+    const contenidoFormateado = (articulo.contenido || '')
+      .split('\n\n')
+      .filter(p => p.trim())
+      .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`)
+      .join('');
+    document.getElementById('contenido-articulo').innerHTML = contenidoFormateado;
 
     // Breadcrumb
     const migaCat = document.getElementById('miga-categoria');
@@ -211,7 +216,7 @@ async function cargarArticulo() {
       const rol = usuario?.perfil?.rol;
       if (rol === 'personal' || rol === 'admin') {
         btnEditar.style.display = 'inline-flex';
-        btnEditar.href = `/pages/wiki/editar?id=${articuloId}`;
+        btnEditar.href = `/admin/wiki-editor.html?editar=${articuloId}`;
       }
     }
   } catch (e) {

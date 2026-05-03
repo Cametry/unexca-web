@@ -150,7 +150,7 @@ async function mostrarBotonAgregar() {
     const rol = usuario?.perfil?.rol;
     if (rol === 'personal' || rol === 'admin') {
       btn.style.display = 'inline-flex';
-      btn.href = '/pages/calendario/editar.html';
+      btn.href = '/admin/calendario-editor.html';
     }
   } catch (e) {
     // Si no hay sesión, el botón permanece oculto
