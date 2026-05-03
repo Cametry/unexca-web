@@ -24,8 +24,8 @@
   <div id="navbar-placeholder"></div>
 
   <div class="admin-layout">
+    <div class="admin-sidebar-overlay" id="admin-sidebar-overlay"></div>
     <aside class="admin-sidebar" id="admin-sidebar">
-      <button class="admin-toggle-btn" id="admin-toggle-btn" aria-label="Abrir menú">☰</button>
       <div class="admin-sidebar-logo">
         <img src="/assets/img/logo-unexca-white.png" alt="UNEXCA" height="40">
       </div>
@@ -99,18 +99,20 @@
           </div>
         </div>
 
-        <table class="admin-tabla">
-          <thead>
-            <tr>
-              <th>Título</th>
-              <th>Categoría</th>
-              <th>Carrera</th>
-              <th>Acceso</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-documentos"></tbody>
-        </table>
+        <div class="admin-tabla-wrapper">
+          <table class="admin-tabla">
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Categoría</th>
+                <th>Carrera</th>
+                <th>Acceso</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-documentos"></tbody>
+          </table>
+        </div>
       </div>
     </main>
   </div>
@@ -349,17 +351,6 @@
       } catch (err) {
         console.error('Error al eliminar documento:', err);
         mostrarMensaje('Error al eliminar el documento: ' + err.message, 'error');
-      }
-    });
-
-    /* ─── Mobile toggle ─────────────────────────── */
-    document.addEventListener('DOMContentLoaded', () => {
-      const toggleBtn = document.getElementById('admin-toggle-btn');
-      const sidebar = document.getElementById('admin-sidebar');
-      if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', () => {
-          sidebar.classList.toggle('abierto');
-        });
       }
     });
 

@@ -1,25 +1,26 @@
-# UNEXCA_AI_CONTEXT.md
-> **INSTRUCCIÓN PARA IA:** Este archivo es tu contexto operativo completo. Léelo íntegro antes de generar cualquier código, archivo o respuesta sobre este proyecto. Contiene especificaciones exactas, código base real y reglas de cumplimiento obligatorio. No asumas nada que no esté aquí.
+# UNEXCA\_AI\_CONTEXT.md
 
----
+> \\\*\\\*INSTRUCCIÓN PARA IA:\\\*\\\* Este archivo es tu contexto operativo completo. Léelo íntegro antes de generar cualquier código, archivo o respuesta sobre este proyecto. Contiene especificaciones exactas, código base real y reglas de cumplimiento obligatorio. No asumas nada que no esté aquí.
 
-## [META] IDENTIDAD DEL PROYECTO
+\---
+
+## \[META] IDENTIDAD DEL PROYECTO
 
 ```yaml
 nombre: Portal Web Institucional UNEXCA
 cliente: Universidad Nacional Experimental de la Gran Caracas (Venezuela)
-idioma_ui: español (es-VE)
+idioma\\\_ui: español (es-VE)
 version: 1.0.0
-estado: en_desarrollo
-objetivo_principal: portal universitario público con panel de administración
-objetivo_secundario: pasar materia Proyecto Sociotecnológico II (UNEXCA, 3er semestre Informática)
+estado: en\\\_desarrollo
+objetivo\\\_principal: portal universitario público con panel de administración
+objetivo\\\_secundario: pasar materia Proyecto Sociotecnológico II (UNEXCA, 3er semestre Informática)
 desarrollador: puede ser 1 persona o equipo de hasta 6
-dominio_temporal: unexca.vercel.app | unexca.netlify.app
+dominio\\\_temporal: unexca.vercel.app | unexca.netlify.app
 ```
 
----
+\---
 
-## [STACK] TECNOLOGÍAS — DEFINITIVAS E INAMOVIBLES
+## \[STACK] TECNOLOGÍAS — DEFINITIVAS E INAMOVIBLES
 
 ```yaml
 frontend:
@@ -39,20 +40,20 @@ backend:
 hosting:
   proveedor: Vercel o Netlify
   tipo: estático (sin SSR, sin build step, sin bundler)
-  ci_cd: automático desde GitHub push a main
+  ci\\\_cd: automático desde GitHub push a main
 
-control_versiones: Git + GitHub
+control\\\_versiones: Git + GitHub
 
-herramientas_desarrollo:
+herramientas\\\_desarrollo:
   editor: Visual Studio Code
-  node_uso: SOLO herramientas locales (no es backend)
+  node\\\_uso: SOLO herramientas locales (no es backend)
 ```
 
 **REGLA ABSOLUTA:** Nunca sugerir frameworks JS. Nunca sugerir bundlers (webpack, vite, parcel). Nunca sugerir TypeScript. El código debe funcionar directamente en el navegador sin proceso de build.
 
----
+\---
 
-## [SUPABASE] INICIALIZACIÓN Y CLIENTE
+## \[SUPABASE] INICIALIZACIÓN Y CLIENTE
 
 ```javascript
 // ARCHIVO: assets/js/supabase-client.js
@@ -61,39 +62,40 @@ herramientas_desarrollo:
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 // Estas constantes son PÚBLICAS por diseño (anon key). La seguridad la da RLS.
-const SUPABASE_URL     = 'TU_SUPABASE_URL';      // https://xxxx.supabase.co
-const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY'; // eyJhbGci...
+const SUPABASE\\\_URL     = 'TU\\\_SUPABASE\\\_URL';      // https://xxxx.supabase.co
+const SUPABASE\\\_ANON\\\_KEY = 'TU\\\_SUPABASE\\\_ANON\\\_KEY'; // eyJhbGci...
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(SUPABASE\\\_URL, SUPABASE\\\_ANON\\\_KEY);
 ```
 
 **Importación en cualquier otro archivo JS:**
+
 ```javascript
 import { supabase } from '/assets/js/supabase-client.js';
 ```
 
----
+\---
 
-## [ROLES] SISTEMA DE ACCESO
+## \[ROLES] SISTEMA DE ACCESO
 
 ```yaml
-roles_autenticados:
+roles\\\_autenticados:
   - id: admin
     descripcion: Control total. Gestiona usuarios, contenido y configuración.
-    valor_db: 'admin'
+    valor\\\_db: 'admin'
   - id: personal
     descripcion: Empleados/docentes. Publican y editan contenido.
-    valor_db: 'personal'
+    valor\\\_db: 'personal'
   - id: estudiante
     descripcion: Usuarios registrados. Solo lectura extendida y descarga de docs.
-    valor_db: 'estudiante'
+    valor\\\_db: 'estudiante'
 
-estado_publico:
+estado\\\_publico:
   id: visitante
   descripcion: No autenticado. Lectura de contenido público solamente.
   implementacion: ausencia de sesión activa (no existe en DB)
 
-jerarquia_numerica:
+jerarquia\\\_numerica:
   estudiante: 1
   personal: 2
   admin: 3
@@ -101,76 +103,76 @@ jerarquia_numerica:
 registro:
   tipo: libre (autoregistro)
   verificacion: email obligatorio
-  rol_asignado_automaticamente: 'estudiante'
-  cambio_de_rol: solo el admin puede cambiarlo desde el panel
+  rol\\\_asignado\\\_automaticamente: 'estudiante'
+  cambio\\\_de\\\_rol: solo el admin puede cambiarlo desde el panel
 
-campo_db: tabla 'perfiles', columna 'rol' TEXT CHECK IN ('estudiante','personal','admin')
+campo\\\_db: tabla 'perfiles', columna 'rol' TEXT CHECK IN ('estudiante','personal','admin')
 ```
 
----
+\---
 
-## [DB] ESQUEMA COMPLETO — PostgreSQL / Supabase
+## \[DB] ESQUEMA COMPLETO — PostgreSQL / Supabase
 
 ### Ejecutar en orden en Supabase SQL Editor:
 
-#### PASO 1: Tablas (`01_schema.sql`)
+#### PASO 1: Tablas (`01\\\_schema.sql`)
 
 ```sql
 -- TABLA: perfiles (extiende auth.users)
 CREATE TABLE public.perfiles (
   id              UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  nombre_completo TEXT NOT NULL,
+  nombre\\\_completo TEXT NOT NULL,
   email           TEXT NOT NULL,
   rol             TEXT NOT NULL DEFAULT 'estudiante'
                   CHECK (rol IN ('estudiante', 'personal', 'admin')),
-  avatar_url      TEXT,
+  avatar\\\_url      TEXT,
   activo          BOOLEAN DEFAULT true,
-  creado_en       TIMESTAMPTZ DEFAULT NOW(),
-  actualizado_en  TIMESTAMPTZ DEFAULT NOW()
+  creado\\\_en       TIMESTAMPTZ DEFAULT NOW(),
+  actualizado\\\_en  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- TABLA: wiki_categorias
-CREATE TABLE public.wiki_categorias (
+-- TABLA: wiki\\\_categorias
+CREATE TABLE public.wiki\\\_categorias (
   id          SERIAL PRIMARY KEY,
   nombre      TEXT NOT NULL,
   descripcion TEXT,
   icono       TEXT DEFAULT '📄',
   orden       INTEGER DEFAULT 0,
-  creado_en   TIMESTAMPTZ DEFAULT NOW()
+  creado\\\_en   TIMESTAMPTZ DEFAULT NOW()
 );
 
--- TABLA: wiki_articulos
-CREATE TABLE public.wiki_articulos (
+-- TABLA: wiki\\\_articulos
+CREATE TABLE public.wiki\\\_articulos (
   id             SERIAL PRIMARY KEY,
-  categoria_id   INTEGER NOT NULL REFERENCES wiki_categorias(id) ON DELETE CASCADE,
+  categoria\\\_id   INTEGER NOT NULL REFERENCES wiki\\\_categorias(id) ON DELETE CASCADE,
   titulo         TEXT NOT NULL,
   contenido      TEXT NOT NULL,
-  autor_id       UUID REFERENCES perfiles(id) ON DELETE SET NULL,
+  autor\\\_id       UUID REFERENCES perfiles(id) ON DELETE SET NULL,
   publicado      BOOLEAN DEFAULT false,
   vistas         INTEGER DEFAULT 0,
-  creado_en      TIMESTAMPTZ DEFAULT NOW(),
-  actualizado_en TIMESTAMPTZ DEFAULT NOW()
+  creado\\\_en      TIMESTAMPTZ DEFAULT NOW(),
+  actualizado\\\_en TIMESTAMPTZ DEFAULT NOW()
 );
 
--- TABLA: faq_categorias
-CREATE TABLE public.faq_categorias (
+-- TABLA: faq\\\_categorias
+CREATE TABLE public.faq\\\_categorias (
   id     SERIAL PRIMARY KEY,
   nombre TEXT NOT NULL,
   icono  TEXT DEFAULT '❓',
   orden  INTEGER DEFAULT 0
 );
 
--- TABLA: faq_preguntas
-CREATE TABLE public.faq_preguntas (
+-- TABLA: faq\\\_preguntas
+CREATE TABLE public.faq\\\_preguntas (
   id           SERIAL PRIMARY KEY,
-  categoria_id INTEGER NOT NULL REFERENCES faq_categorias(id) ON DELETE CASCADE,
+  categoria\\\_id INTEGER NOT NULL REFERENCES faq\\\_categorias(id) ON DELETE CASCADE,
   pregunta     TEXT NOT NULL,
   respuesta    TEXT NOT NULL,
-  autor_id     UUID REFERENCES perfiles(id) ON DELETE SET NULL,
+  autor\\\_id     UUID REFERENCES perfiles(id) ON DELETE SET NULL,
   publicado    BOOLEAN DEFAULT true,
   vistas       INTEGER DEFAULT 0,
   orden        INTEGER DEFAULT 0,
-  creado_en    TIMESTAMPTZ DEFAULT NOW()
+  creado\\\_en    TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- TABLA: noticias
@@ -179,14 +181,14 @@ CREATE TABLE public.noticias (
   titulo       TEXT NOT NULL,
   resumen      TEXT,
   contenido    TEXT NOT NULL,
-  portada_url  TEXT,
+  portada\\\_url  TEXT,
   categoria    TEXT DEFAULT 'Noticia'
                CHECK (categoria IN ('Noticia','Anuncio','Taller','Curso','Evento')),
-  autor_id     UUID REFERENCES perfiles(id) ON DELETE SET NULL,
+  autor\\\_id     UUID REFERENCES perfiles(id) ON DELETE SET NULL,
   publicado    BOOLEAN DEFAULT false,
   destacado    BOOLEAN DEFAULT false,
-  publicado_en TIMESTAMPTZ DEFAULT NOW(),
-  creado_en    TIMESTAMPTZ DEFAULT NOW()
+  publicado\\\_en TIMESTAMPTZ DEFAULT NOW(),
+  creado\\\_en    TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- TABLA: documentos
@@ -194,117 +196,117 @@ CREATE TABLE public.documentos (
   id            SERIAL PRIMARY KEY,
   titulo        TEXT NOT NULL,
   descripcion   TEXT,
-  archivo_url   TEXT NOT NULL,
+  archivo\\\_url   TEXT NOT NULL,
   categoria     TEXT NOT NULL,
   carrera       TEXT,
-  acceso_minimo TEXT DEFAULT 'estudiante'
-                CHECK (acceso_minimo IN ('publico','estudiante','personal','admin')),
-  subido_por    UUID REFERENCES perfiles(id) ON DELETE SET NULL,
-  creado_en     TIMESTAMPTZ DEFAULT NOW()
+  acceso\\\_minimo TEXT DEFAULT 'estudiante'
+                CHECK (acceso\\\_minimo IN ('publico','estudiante','personal','admin')),
+  subido\\\_por    UUID REFERENCES perfiles(id) ON DELETE SET NULL,
+  creado\\\_en     TIMESTAMPTZ DEFAULT NOW()
 );
 
--- TABLA: calendario_eventos
-CREATE TABLE public.calendario_eventos (
+-- TABLA: calendario\\\_eventos
+CREATE TABLE public.calendario\\\_eventos (
   id           SERIAL PRIMARY KEY,
   titulo       TEXT NOT NULL,
   descripcion  TEXT,
-  fecha_inicio DATE NOT NULL,
-  fecha_fin    DATE,
+  fecha\\\_inicio DATE NOT NULL,
+  fecha\\\_fin    DATE,
   tipo         TEXT DEFAULT 'General'
                CHECK (tipo IN ('Inscripción','Clases','Examen','Graduación','Feriado','General')),
   color        TEXT DEFAULT '#022A6F',
-  creado_por   UUID REFERENCES perfiles(id) ON DELETE SET NULL,
-  creado_en    TIMESTAMPTZ DEFAULT NOW()
+  creado\\\_por   UUID REFERENCES perfiles(id) ON DELETE SET NULL,
+  creado\\\_en    TIMESTAMPTZ DEFAULT NOW()
 );
 
--- TABLA: configuracion_sitio (clave-valor)
-CREATE TABLE public.configuracion_sitio (
+-- TABLA: configuracion\\\_sitio (clave-valor)
+CREATE TABLE public.configuracion\\\_sitio (
   clave          TEXT PRIMARY KEY,
   valor          TEXT,
   descripcion    TEXT,
-  actualizado_en TIMESTAMPTZ DEFAULT NOW()
+  actualizado\\\_en TIMESTAMPTZ DEFAULT NOW()
 );
 
-INSERT INTO public.configuracion_sitio (clave, valor, descripcion) VALUES
-  ('instagram_url',    'https://www.instagram.com/unexca',     'URL de Instagram'),
-  ('whatsapp_url',     'https://wa.me/584120000000',            'Enlace de WhatsApp'),
-  ('telegram_url',     'https://t.me/unexca',                   'Canal de Telegram'),
-  ('nombre_sitio',     'UNEXCA — Portal Institucional',         'Nombre del sitio'),
-  ('descripcion_sitio','Portal oficial de la Universidad Nacional Experimental de la Gran Caracas', 'SEO descripción');
+INSERT INTO public.configuracion\\\_sitio (clave, valor, descripcion) VALUES
+  ('instagram\\\_url',    'https://www.instagram.com/unexca',     'URL de Instagram'),
+  ('whatsapp\\\_url',     'https://wa.me/584120000000',            'Enlace de WhatsApp'),
+  ('telegram\\\_url',     'https://t.me/unexca',                   'Canal de Telegram'),
+  ('nombre\\\_sitio',     'UNEXCA — Portal Institucional',         'Nombre del sitio'),
+  ('descripcion\\\_sitio','Portal oficial de la Universidad Nacional Experimental de la Gran Caracas', 'SEO descripción');
 ```
 
-#### PASO 2: Row Level Security (`02_rls.sql`)
+#### PASO 2: Row Level Security (`02\\\_rls.sql`)
 
 ```sql
 -- Activar RLS en todas las tablas
 ALTER TABLE public.perfiles            ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.wiki_categorias     ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.wiki_articulos      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.faq_categorias      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.faq_preguntas       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.wiki\\\_categorias     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.wiki\\\_articulos      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.faq\\\_categorias      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.faq\\\_preguntas       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.noticias            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.documentos          ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.calendario_eventos  ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.configuracion_sitio ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.calendario\\\_eventos  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.configuracion\\\_sitio ENABLE ROW LEVEL SECURITY;
 
 -- Helper: obtener rol del usuario actual
-CREATE OR REPLACE FUNCTION public.get_rol_usuario()
+CREATE OR REPLACE FUNCTION public.get\\\_rol\\\_usuario()
 RETURNS TEXT AS $$
   SELECT rol FROM public.perfiles WHERE id = auth.uid();
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
 -- PERFILES
-CREATE POLICY "perfiles_ver"        ON public.perfiles FOR SELECT USING (true);
-CREATE POLICY "perfiles_propio"     ON public.perfiles FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "perfiles_admin"      ON public.perfiles FOR ALL    USING (get_rol_usuario() = 'admin');
+CREATE POLICY "perfiles\\\_ver"        ON public.perfiles FOR SELECT USING (true);
+CREATE POLICY "perfiles\\\_propio"     ON public.perfiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "perfiles\\\_admin"      ON public.perfiles FOR ALL    USING (get\\\_rol\\\_usuario() = 'admin');
 
 -- WIKI (lectura pública de publicados; escritura para personal+)
-CREATE POLICY "wiki_art_leer"       ON public.wiki_articulos FOR SELECT USING (publicado = true);
-CREATE POLICY "wiki_art_personal_ver" ON public.wiki_articulos FOR SELECT USING (get_rol_usuario() IN ('personal','admin'));
-CREATE POLICY "wiki_art_insert"     ON public.wiki_articulos FOR INSERT WITH CHECK (get_rol_usuario() IN ('personal','admin'));
-CREATE POLICY "wiki_art_update"     ON public.wiki_articulos FOR UPDATE USING (get_rol_usuario() IN ('personal','admin'));
-CREATE POLICY "wiki_art_delete"     ON public.wiki_articulos FOR DELETE USING (get_rol_usuario() = 'admin');
-CREATE POLICY "wiki_cat_leer"       ON public.wiki_categorias FOR SELECT USING (true);
-CREATE POLICY "wiki_cat_escribir"   ON public.wiki_categorias FOR ALL USING (get_rol_usuario() IN ('personal','admin'));
+CREATE POLICY "wiki\\\_art\\\_leer"       ON public.wiki\\\_articulos FOR SELECT USING (publicado = true);
+CREATE POLICY "wiki\\\_art\\\_personal\\\_ver" ON public.wiki\\\_articulos FOR SELECT USING (get\\\_rol\\\_usuario() IN ('personal','admin'));
+CREATE POLICY "wiki\\\_art\\\_insert"     ON public.wiki\\\_articulos FOR INSERT WITH CHECK (get\\\_rol\\\_usuario() IN ('personal','admin'));
+CREATE POLICY "wiki\\\_art\\\_update"     ON public.wiki\\\_articulos FOR UPDATE USING (get\\\_rol\\\_usuario() IN ('personal','admin'));
+CREATE POLICY "wiki\\\_art\\\_delete"     ON public.wiki\\\_articulos FOR DELETE USING (get\\\_rol\\\_usuario() = 'admin');
+CREATE POLICY "wiki\\\_cat\\\_leer"       ON public.wiki\\\_categorias FOR SELECT USING (true);
+CREATE POLICY "wiki\\\_cat\\\_escribir"   ON public.wiki\\\_categorias FOR ALL USING (get\\\_rol\\\_usuario() IN ('personal','admin'));
 
 -- FAQ
-CREATE POLICY "faq_preg_leer"       ON public.faq_preguntas FOR SELECT USING (publicado = true);
-CREATE POLICY "faq_preg_personal"   ON public.faq_preguntas FOR ALL USING (get_rol_usuario() IN ('personal','admin'));
-CREATE POLICY "faq_cat_leer"        ON public.faq_categorias FOR SELECT USING (true);
-CREATE POLICY "faq_cat_escribir"    ON public.faq_categorias FOR ALL USING (get_rol_usuario() IN ('personal','admin'));
+CREATE POLICY "faq\\\_preg\\\_leer"       ON public.faq\\\_preguntas FOR SELECT USING (publicado = true);
+CREATE POLICY "faq\\\_preg\\\_personal"   ON public.faq\\\_preguntas FOR ALL USING (get\\\_rol\\\_usuario() IN ('personal','admin'));
+CREATE POLICY "faq\\\_cat\\\_leer"        ON public.faq\\\_categorias FOR SELECT USING (true);
+CREATE POLICY "faq\\\_cat\\\_escribir"    ON public.faq\\\_categorias FOR ALL USING (get\\\_rol\\\_usuario() IN ('personal','admin'));
 
 -- NOTICIAS
-CREATE POLICY "noticias_leer"       ON public.noticias FOR SELECT USING (publicado = true);
-CREATE POLICY "noticias_personal"   ON public.noticias FOR ALL USING (get_rol_usuario() IN ('personal','admin'));
+CREATE POLICY "noticias\\\_leer"       ON public.noticias FOR SELECT USING (publicado = true);
+CREATE POLICY "noticias\\\_personal"   ON public.noticias FOR ALL USING (get\\\_rol\\\_usuario() IN ('personal','admin'));
 
 -- DOCUMENTOS
-CREATE POLICY "docs_publicos"       ON public.documentos FOR SELECT USING (acceso_minimo = 'publico');
-CREATE POLICY "docs_estudiante"     ON public.documentos FOR SELECT USING (
-  acceso_minimo = 'estudiante' AND auth.uid() IS NOT NULL
-  AND get_rol_usuario() IN ('estudiante','personal','admin')
+CREATE POLICY "docs\\\_publicos"       ON public.documentos FOR SELECT USING (acceso\\\_minimo = 'publico');
+CREATE POLICY "docs\\\_estudiante"     ON public.documentos FOR SELECT USING (
+  acceso\\\_minimo = 'estudiante' AND auth.uid() IS NOT NULL
+  AND get\\\_rol\\\_usuario() IN ('estudiante','personal','admin')
 );
-CREATE POLICY "docs_personal"       ON public.documentos FOR ALL USING (get_rol_usuario() IN ('personal','admin'));
+CREATE POLICY "docs\\\_personal"       ON public.documentos FOR ALL USING (get\\\_rol\\\_usuario() IN ('personal','admin'));
 
 -- CALENDARIO
-CREATE POLICY "cal_leer"            ON public.calendario_eventos FOR SELECT USING (true);
-CREATE POLICY "cal_personal"        ON public.calendario_eventos FOR ALL USING (get_rol_usuario() IN ('personal','admin'));
+CREATE POLICY "cal\\\_leer"            ON public.calendario\\\_eventos FOR SELECT USING (true);
+CREATE POLICY "cal\\\_personal"        ON public.calendario\\\_eventos FOR ALL USING (get\\\_rol\\\_usuario() IN ('personal','admin'));
 
 -- CONFIGURACION
-CREATE POLICY "config_leer"         ON public.configuracion_sitio FOR SELECT USING (true);
-CREATE POLICY "config_admin"        ON public.configuracion_sitio FOR ALL USING (get_rol_usuario() = 'admin');
+CREATE POLICY "config\\\_leer"         ON public.configuracion\\\_sitio FOR SELECT USING (true);
+CREATE POLICY "config\\\_admin"        ON public.configuracion\\\_sitio FOR ALL USING (get\\\_rol\\\_usuario() = 'admin');
 ```
 
-#### PASO 3: Triggers (`03_triggers.sql`)
+#### PASO 3: Triggers (`03\\\_triggers.sql`)
 
 ```sql
 -- Auto-crear perfil al registrarse un nuevo usuario
-CREATE OR REPLACE FUNCTION public.crear_perfil_nuevo_usuario()
+CREATE OR REPLACE FUNCTION public.crear\\\_perfil\\\_nuevo\\\_usuario()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.perfiles (id, nombre_completo, email, rol)
+  INSERT INTO public.perfiles (id, nombre\\\_completo, email, rol)
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'nombre_completo', 'Usuario'),
+    COALESCE(NEW.raw\\\_user\\\_meta\\\_data->>'nombre\\\_completo', 'Usuario'),
     NEW.email,
     'estudiante'
   );
@@ -312,40 +314,40 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE TRIGGER trigger_nuevo_usuario
+CREATE TRIGGER trigger\\\_nuevo\\\_usuario
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.crear_perfil_nuevo_usuario();
+  FOR EACH ROW EXECUTE FUNCTION public.crear\\\_perfil\\\_nuevo\\\_usuario();
 
--- Auto-actualizar 'actualizado_en'
-CREATE OR REPLACE FUNCTION public.actualizar_timestamp()
+-- Auto-actualizar 'actualizado\\\_en'
+CREATE OR REPLACE FUNCTION public.actualizar\\\_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
-  NEW.actualizado_en = NOW();
+  NEW.actualizado\\\_en = NOW();
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER ts_perfiles  BEFORE UPDATE ON public.perfiles       FOR EACH ROW EXECUTE FUNCTION public.actualizar_timestamp();
-CREATE TRIGGER ts_wiki      BEFORE UPDATE ON public.wiki_articulos FOR EACH ROW EXECUTE FUNCTION public.actualizar_timestamp();
+CREATE TRIGGER ts\\\_perfiles  BEFORE UPDATE ON public.perfiles       FOR EACH ROW EXECUTE FUNCTION public.actualizar\\\_timestamp();
+CREATE TRIGGER ts\\\_wiki      BEFORE UPDATE ON public.wiki\\\_articulos FOR EACH ROW EXECUTE FUNCTION public.actualizar\\\_timestamp();
 ```
 
-#### PASO 4: Datos iniciales (`04_seed.sql`)
+#### PASO 4: Datos iniciales (`04\\\_seed.sql`)
 
 ```sql
-INSERT INTO public.wiki_categorias (nombre, descripcion, icono, orden) VALUES
+INSERT INTO public.wiki\\\_categorias (nombre, descripcion, icono, orden) VALUES
   ('La Universidad',      'Historia, misión, visión y valores',              '🏛', 1),
   ('Carreras y Programas','Pregrado, postgrado e introductorio',             '📚', 2),
   ('Inscripciones',       'Proceso, requisitos y fechas',                    '📝', 3),
   ('Sedes',               'Ubicación y contacto de las sedes de UNEXCA',    '📍', 4),
   ('Reglamentos',         'Normativas y reglamentos institucionales',        '⚖️', 5);
 
-INSERT INTO public.faq_categorias (nombre, icono, orden) VALUES
+INSERT INTO public.faq\\\_categorias (nombre, icono, orden) VALUES
   ('Inscripción',         '📝', 1),
   ('Pagos y Aranceles',   '💰', 2),
   ('Documentos',          '📋', 3),
   ('Vida Estudiantil',    '🎓', 4);
 
-INSERT INTO public.faq_preguntas (categoria_id, pregunta, respuesta, publicado) VALUES
+INSERT INTO public.faq\\\_preguntas (categoria\\\_id, pregunta, respuesta, publicado) VALUES
   (1,'¿Cuáles son los requisitos para inscribirse?',
    'Cédula vigente, título de bachiller certificado, notas certificadas y 2 fotos carnet.',true),
   (1,'¿Cuándo son los períodos de inscripción?',
@@ -353,34 +355,34 @@ INSERT INTO public.faq_preguntas (categoria_id, pregunta, respuesta, publicado) 
   (3,'¿Qué documentos llevar el día de inscripción?',
    'Original y copia de: cédula, título de bachiller, notas certificadas y constancia de salud.',true);
 
-INSERT INTO public.calendario_eventos (titulo, descripcion, fecha_inicio, fecha_fin, tipo, color) VALUES
+INSERT INTO public.calendario\\\_eventos (titulo, descripcion, fecha\\\_inicio, fecha\\\_fin, tipo, color) VALUES
   ('Inicio de Inscripciones','Apertura del período','2025-07-15','2025-07-31','Inscripción','#022A6F'),
   ('Inicio de Clases',       'Comienzo del semestre','2025-08-18',NULL,       'Clases',     '#1A7A3C'),
   ('Exámenes Finales',       'Semana de exámenes',   '2025-11-17','2025-11-28','Examen',    '#C17800');
 ```
 
----
+\---
 
-## [FILES] ESTRUCTURA COMPLETA DE ARCHIVOS
+## \[FILES] ESTRUCTURA COMPLETA DE ARCHIVOS
 
 ```
 unexca-web/
 ├── assets/
 │   ├── css/
-│   │   ├── base.css              [variables CSS, reset, tipografía]
-│   │   ├── layout.css            [navbar, footer, contenedor global]
-│   │   └── components.css        [botones, tarjetas, formularios, acordeón, badges]
+│   │   ├── base.css              \\\[variables CSS, reset, tipografía]
+│   │   ├── layout.css            \\\[navbar, footer, contenedor global]
+│   │   └── components.css        \\\[botones, tarjetas, formularios, acordeón, badges]
 │   ├── js/
-│   │   ├── supabase-client.js    [init único de Supabase — importar desde aquí SIEMPRE]
-│   │   ├── auth.js               [getUsuarioActual, verificarRol, cerrarSesion, requiereAutenticacion]
-│   │   └── utils.js              [formatearFecha, truncar, getParamURL, mostrarError, mostrarCarga, sanitizar]
+│   │   ├── supabase-client.js    \\\[init único de Supabase — importar desde aquí SIEMPRE]
+│   │   ├── auth.js               \\\[getUsuarioActual, verificarRol, cerrarSesion, requiereAutenticacion]
+│   │   └── utils.js              \\\[formatearFecha, truncar, getParamURL, mostrarError, mostrarCarga, sanitizar]
 │   └── img/
-│       ├── logo.png              [logo oficial UNEXCA — fondo blanco]
-│       ├── logo-white.png        [logo UNEXCA — versión blanca para fondos oscuros]
+│       ├── logo.png              \\\[logo oficial UNEXCA — fondo blanco]
+│       ├── logo-white.png        \\\[logo UNEXCA — versión blanca para fondos oscuros]
 │       └── favicon.ico
 ├── components/
-│   ├── navbar.html               [nav reutilizable — cargado via fetch() en cada página]
-│   └── footer.html               [footer reutilizable — cargado via fetch()]
+│   ├── navbar.html               \\\[nav reutilizable — cargado via fetch() en cada página]
+│   └── footer.html               \\\[footer reutilizable — cargado via fetch()]
 ├── pages/
 │   ├── auth/
 │   │   ├── login.html
@@ -388,16 +390,16 @@ unexca-web/
 │   │   ├── recuperar-contrasena.html
 │   │   └── auth.js
 │   ├── wiki/
-│   │   ├── index.html            [listado de categorías]
-│   │   ├── categoria.html        [artículos de una categoría — ?id=N]
-│   │   ├── articulo.html         [artículo individual — ?id=N]
+│   │   ├── index.html            \\\[listado de categorías]
+│   │   ├── categoria.html        \\\[artículos de una categoría — ?id=N]
+│   │   ├── articulo.html         \\\[artículo individual — ?id=N]
 │   │   └── wiki.js
 │   ├── faq/
 │   │   ├── index.html
 │   │   └── faq.js
 │   ├── noticias/
 │   │   ├── index.html
-│   │   ├── noticia.html          [noticia individual — ?id=N]
+│   │   ├── noticia.html          \\\[noticia individual — ?id=N]
 │   │   └── noticias.js
 │   ├── documentos/
 │   │   ├── index.html
@@ -406,61 +408,61 @@ unexca-web/
 │       ├── index.html
 │       └── calendario.js
 ├── admin/
-│   ├── index.html                [dashboard — stats generales]
-│   ├── usuarios.html             [CRUD usuarios]
-│   ├── wiki-editor.html          [CRUD wiki]
-│   ├── faq-editor.html           [CRUD faq]
-│   ├── noticias-editor.html      [CRUD noticias + subida de imagen]
-│   ├── documentos-editor.html    [CRUD documentos + subida PDF]
-│   ├── calendario-editor.html    [CRUD eventos]
-│   ├── configuracion.html        [redes sociales, ajustes]
-│   └── admin.js                  [guard de rol: requiereAutenticacion('admin')]
+│   ├── index.html                \\\[dashboard — stats generales]
+│   ├── usuarios.html             \\\[CRUD usuarios]
+│   ├── wiki-editor.html          \\\[CRUD wiki]
+│   ├── faq-editor.html           \\\[CRUD faq]
+│   ├── noticias-editor.html      \\\[CRUD noticias + subida de imagen]
+│   ├── documentos-editor.html    \\\[CRUD documentos + subida PDF]
+│   ├── calendario-editor.html    \\\[CRUD eventos]
+│   ├── configuracion.html        \\\[redes sociales, ajustes]
+│   └── admin.js                  \\\[guard de rol: requiereAutenticacion('admin')]
 ├── supabase/
-│   ├── 01_schema.sql
-│   ├── 02_rls.sql
-│   ├── 03_triggers.sql
-│   └── 04_seed.sql
-├── index.html                    [página de inicio / landing]
+│   ├── 01\\\_schema.sql
+│   ├── 02\\\_rls.sql
+│   ├── 03\\\_triggers.sql
+│   └── 04\\\_seed.sql
+├── index.html                    \\\[página de inicio / landing]
 ├── 404.html
-├── .env                          [NUNCA subir a Git]
+├── .env                          \\\[NUNCA subir a Git]
 ├── .gitignore
 ├── vercel.json
 └── README.md
 ```
 
----
+\---
 
-## [CSS] SISTEMA DE DISEÑO COMPLETO
+## \[CSS] SISTEMA DE DISEÑO COMPLETO
 
 ### Variables (`assets/css/base.css` — bloque `:root`)
 
 ```css
 :root {
-  /* PALETA OFICIAL (extraída del logo UNEXCA) */
-  --color-primario:       #022A6F;   /* Azul universitario principal */
-  --color-primario-dark:  #000C4D;   /* Azul muy oscuro — navbar, encabezados */
-  --color-primario-light: #48597E;   /* Azul medio — texto secundario */
-  --color-texto-base:     #161823;   /* Casi negro — texto principal */
+  /\\\* PALETA OFICIAL (extraída del logo UNEXCA) \\\*/
+  --color-primario:       #022A6F;   /\\\* Azul universitario principal \\\*/
+  --color-primario-dark:  #000C4D;   /\\\* Azul muy oscuro — navbar, encabezados \\\*/
+  --color-primario-light: #48597E;   /\\\* Azul medio — texto secundario \\\*/
+  --color-texto-base:     #161823;   /\\\* Casi negro — texto principal \\\*/
 
-  /* NEUTROS */
+  /\\\* NEUTROS \\\*/
   --color-blanco:         #FFFFFF;
-  --color-fondo:          #F5F7FA;   /* Fondo de páginas */
+  --color-fondo:          #F5F7FA;   /\\\* Fondo de páginas \\\*/
   --color-fondo-card:     #FFFFFF;
   --color-borde:          #D1D9E6;
   --color-texto-suave:    #48597E;
   --color-texto-muted:    #8A9BC0;
 
-  /* ESTADOS */
+  /\\\* ESTADOS \\\*/
   --color-exito:          #1A7A3C;
   --color-advertencia:    #C17800;
   --color-error:          #C0392B;
 
-  /* ROLES */
+  /\\\* ROLES \\\*/
   --color-rol-admin:      #022A6F;
   --color-rol-personal:   #C17800;
   --color-rol-estudiante: #1A7A3C;
 
-  /* TIPOGRAFÍA */
+  /\\\* TIPOGRAFÍA \\\*/
   --fuente: 'Inter', 'Segoe UI', Arial, sans-serif;
   --texto-xs:   0.75rem;
   --texto-sm:   0.875rem;
@@ -471,27 +473,27 @@ unexca-web/
   --texto-3xl:  1.875rem;
   --texto-4xl:  2.25rem;
 
-  /* ESPACIADO (base 4px) */
+  /\\\* ESPACIADO (base 4px) \\\*/
   --s1:  4px;  --s2:  8px;  --s3:  12px; --s4:  16px;
   --s5:  20px; --s6:  24px; --s8:  32px; --s10: 40px;
   --s12: 48px; --s16: 64px;
 
-  /* FORMA */
+  /\\\* FORMA \\\*/
   --radio-sm:   4px;
   --radio-md:   8px;
   --radio-lg:   12px;
   --radio-full: 9999px;
 
-  /* SOMBRAS */
+  /\\\* SOMBRAS \\\*/
   --sombra-sm: 0 1px 3px rgba(2,42,111,0.08);
   --sombra-md: 0 4px 12px rgba(2,42,111,0.12);
   --sombra-lg: 0 8px 24px rgba(2,42,111,0.16);
 
-  /* TRANSICIONES */
+  /\\\* TRANSICIONES \\\*/
   --t: 200ms ease;
   --t-lenta: 350ms ease;
 
-  /* LAYOUT */
+  /\\\* LAYOUT \\\*/
   --ancho-max:  1200px;
   --alto-navbar: 64px;
 }
@@ -500,11 +502,11 @@ unexca-web/
 ### Breakpoints (mobile-first)
 
 ```css
-/* BASE = móvil (<640px) */
-@media (min-width: 640px)  { /* sm  — tableta pequeña  */ }
-@media (min-width: 768px)  { /* md  — tableta          */ }
-@media (min-width: 1024px) { /* lg  — desktop pequeño  */ }
-@media (min-width: 1280px) { /* xl  — desktop grande   */ }
+/\\\* BASE = móvil (<640px) \\\*/
+@media (min-width: 640px)  { /\\\* sm  — tableta pequeña  \\\*/ }
+@media (min-width: 768px)  { /\\\* md  — tableta          \\\*/ }
+@media (min-width: 1024px) { /\\\* lg  — desktop pequeño  \\\*/ }
+@media (min-width: 1280px) { /\\\* xl  — desktop grande   \\\*/ }
 ```
 
 ### Clases CSS clave
@@ -544,9 +546,9 @@ acordeon:
   .acordeon-contenido: "max-height:0 → 500px cuando .abierto"
 ```
 
----
+\---
 
-## [JS] ARCHIVOS BASE COMPLETOS
+## \[JS] ARCHIVOS BASE COMPLETOS
 
 ### `assets/js/auth.js`
 
@@ -557,7 +559,7 @@ export async function getUsuarioActual() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
   const { data: perfil } = await supabase
-    .from('perfiles').select('*').eq('id', user.id).single();
+    .from('perfiles').select('\\\*').eq('id', user.id).single();
   return { ...user, perfil };
 }
 
@@ -565,7 +567,7 @@ export async function verificarRol(rolMinimo) {
   const usuario = await getUsuarioActual();
   if (!usuario) return false;
   const j = { estudiante: 1, personal: 2, admin: 3 };
-  return j[usuario.perfil?.rol] >= j[rolMinimo];
+  return j\\\[usuario.perfil?.rol] >= j\\\[rolMinimo];
 }
 
 export async function cerrarSesion() {
@@ -584,12 +586,12 @@ export async function actualizarNavbar() {
   const usuario = await getUsuarioActual();
   const btnLogin = document.getElementById('btn-login-nav');
   const divUsuario = document.getElementById('navbar-usuario');
-  if (!usuario) { btnLogin?.style && (btnLogin.style.display = 'block'); return; }
+  if (!usuario) { btnLogin?.style \\\&\\\& (btnLogin.style.display = 'block'); return; }
   if (btnLogin) btnLogin.style.display = 'none';
   if (divUsuario) {
     divUsuario.style.display = 'flex';
     const spanNombre = document.getElementById('navbar-nombre-usuario');
-    if (spanNombre) spanNombre.textContent = usuario.perfil?.nombre_completo || usuario.email;
+    if (spanNombre) spanNombre.textContent = usuario.perfil?.nombre\\\_completo || usuario.email;
     const linkAdmin = document.getElementById('link-admin');
     if (linkAdmin) linkAdmin.style.display = usuario.perfil?.rol === 'admin' ? 'inline' : 'none';
   }
@@ -652,9 +654,9 @@ export function setAnioActual(idElemento = 'anio-actual') {
 }
 ```
 
----
+\---
 
-## [PATRON] ESTRUCTURA ESTÁNDAR DE CADA PÁGINA
+## \[PATRON] ESTRUCTURA ESTÁNDAR DE CADA PÁGINA
 
 ### HTML (plantilla base obligatoria)
 
@@ -664,11 +666,11 @@ export function setAnioActual(idElemento = 'anio-actual') {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="[descripción para SEO]">
-  <title>[Título de la página] — UNEXCA</title>
+  <meta name="description" content="\\\[descripción para SEO]">
+  <title>\\\[Título de la página] — UNEXCA</title>
   <link rel="icon" href="/assets/img/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700\\\&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
@@ -679,7 +681,7 @@ export function setAnioActual(idElemento = 'anio-actual') {
   <div id="spinner" class="spinner" aria-hidden="true"></div>
   <div id="navbar-placeholder"></div>
 
-  <main class="[nombre-pagina]-pagina">
+  <main class="\\\[nombre-pagina]-pagina">
     <div class="container">
       <div id="alerta-error" class="alerta alerta-error" style="display:none" role="alert"></div>
       <!-- CONTENIDO DE LA PÁGINA -->
@@ -688,7 +690,7 @@ export function setAnioActual(idElemento = 'anio-actual') {
 
   <div id="footer-placeholder"></div>
 
-  <script type="module" src="[ruta-al-js-del-modulo].js"></script>
+  <script type="module" src="\\\[ruta-al-js-del-modulo].js"></script>
 </body>
 </html>
 ```
@@ -696,7 +698,7 @@ export function setAnioActual(idElemento = 'anio-actual') {
 ### JS (patrón base obligatorio)
 
 ```javascript
-// [modulo].js — Patrón obligatorio para todos los módulos
+// \\\[modulo].js — Patrón obligatorio para todos los módulos
 
 import { supabase }                                 from '/assets/js/supabase-client.js';
 import { getUsuarioActual, actualizarNavbar }       from '/assets/js/auth.js';
@@ -729,9 +731,9 @@ async function cargarContenido() {
 init().catch(console.error);
 ```
 
----
+\---
 
-## [MODULOS] ESPECIFICACIONES DE CADA MÓDULO
+## \[MODULOS] ESPECIFICACIONES DE CADA MÓDULO
 
 ### INDEX (Página de inicio)
 
@@ -741,20 +743,20 @@ url: /
 proposito: Landing page. Primera impresión del portal.
 secciones:
   - hero: título, logo, subtítulo y CTA (Ver Wiki / Ver FAQ)
-  - noticias_destacadas: últimas 3 noticias con destacado=true
-  - eventos_proximos: próximos 3 eventos del calendario
-  - acceso_rapido: grid de iconos enlazando a cada módulo
-  - redes_sociales: botones cargados desde configuracion_sitio
-queries_supabase:
-  - noticias: SELECT id,titulo,resumen,portada_url,categoria,publicado_en FROM noticias WHERE publicado=true AND destacado=true ORDER BY publicado_en DESC LIMIT 3
-  - eventos: SELECT titulo,fecha_inicio,tipo,color FROM calendario_eventos WHERE fecha_inicio >= NOW() ORDER BY fecha_inicio ASC LIMIT 3
-  - redes: SELECT clave,valor FROM configuracion_sitio WHERE clave IN ('instagram_url','whatsapp_url','telegram_url')
+  - noticias\\\_destacadas: últimas 3 noticias con destacado=true
+  - eventos\\\_proximos: próximos 3 eventos del calendario
+  - acceso\\\_rapido: grid de iconos enlazando a cada módulo
+  - redes\\\_sociales: botones cargados desde configuracion\\\_sitio
+queries\\\_supabase:
+  - noticias: SELECT id,titulo,resumen,portada\\\_url,categoria,publicado\\\_en FROM noticias WHERE publicado=true AND destacado=true ORDER BY publicado\\\_en DESC LIMIT 3
+  - eventos: SELECT titulo,fecha\\\_inicio,tipo,color FROM calendario\\\_eventos WHERE fecha\\\_inicio >= NOW() ORDER BY fecha\\\_inicio ASC LIMIT 3
+  - redes: SELECT clave,valor FROM configuracion\\\_sitio WHERE clave IN ('instagram\\\_url','whatsapp\\\_url','telegram\\\_url')
 ```
 
 ### WIKI
 
 ```yaml
-archivos: [wiki/index.html, wiki/categoria.html, wiki/articulo.html, wiki/wiki.js]
+archivos: \\\[wiki/index.html, wiki/categoria.html, wiki/articulo.html, wiki/wiki.js]
 rutas:
   - /pages/wiki/                     → listado categorías
   - /pages/wiki/categoria.html?id=N  → artículos de categoría N
@@ -762,29 +764,29 @@ rutas:
 
 queries:
   index:
-    - SELECT id,nombre,descripcion,icono,orden FROM wiki_categorias ORDER BY orden
+    - SELECT id,nombre,descripcion,icono,orden FROM wiki\\\_categorias ORDER BY orden
     - (en join): contar artículos publicados por categoría
 
   categoria:
-    - param: id (categoria_id)
-    - SELECT id,titulo,actualizado_en FROM wiki_articulos WHERE categoria_id=? AND publicado=true ORDER BY creado_en DESC
+    - param: id (categoria\\\_id)
+    - SELECT id,titulo,actualizado\\\_en FROM wiki\\\_articulos WHERE categoria\\\_id=? AND publicado=true ORDER BY creado\\\_en DESC
 
   articulo:
     - param: id
-    - SELECT wa.*,wc.nombre AS categoria_nombre,p.nombre_completo AS autor
-      FROM wiki_articulos wa
-      LEFT JOIN wiki_categorias wc ON wa.categoria_id=wc.id
-      LEFT JOIN perfiles p ON wa.autor_id=p.id
+    - SELECT wa.\\\*,wc.nombre AS categoria\\\_nombre,p.nombre\\\_completo AS autor
+      FROM wiki\\\_articulos wa
+      LEFT JOIN wiki\\\_categorias wc ON wa.categoria\\\_id=wc.id
+      LEFT JOIN perfiles p ON wa.autor\\\_id=p.id
       WHERE wa.id=? AND wa.publicado=true
-    - UPDATE wiki_articulos SET vistas=vistas+1 WHERE id=?
+    - UPDATE wiki\\\_articulos SET vistas=vistas+1 WHERE id=?
 
-acciones_por_rol:
+acciones\\\_por\\\_rol:
   visitante:  leer artículos publicados
   estudiante: idem
   personal:   + ver borradores, crear/editar artículos
   admin:      + eliminar artículos y categorías
 
-botones_condicionales:
+botones\\\_condicionales:
   - "Editar artículo" — visible si rol IN (personal, admin)
   - "Nuevo artículo"  — visible si rol IN (personal, admin)
 ```
@@ -792,45 +794,45 @@ botones_condicionales:
 ### FAQ
 
 ```yaml
-archivos: [faq/index.html, faq/faq.js]
+archivos: \\\[faq/index.html, faq/faq.js]
 ruta: /pages/faq/
 
-patron_ui: acordeón agrupado por categoría
+patron\\\_ui: acordeón agrupado por categoría
 busqueda: filtro en tiempo real por texto (sin petición a DB — filtra DOM)
 
 query:
-  - SELECT fc.*, array_agg(fp.* ORDER BY fp.orden) AS preguntas
-    FROM faq_categorias fc
-    LEFT JOIN faq_preguntas fp ON fp.categoria_id=fc.id AND fp.publicado=true
+  - SELECT fc.\\\*, array\\\_agg(fp.\\\* ORDER BY fp.orden) AS preguntas
+    FROM faq\\\_categorias fc
+    LEFT JOIN faq\\\_preguntas fp ON fp.categoria\\\_id=fc.id AND fp.publicado=true
     GROUP BY fc.id ORDER BY fc.orden
   # Alternativa simple (2 queries):
-  - SELECT * FROM faq_categorias ORDER BY orden
-  - SELECT * FROM faq_preguntas WHERE publicado=true ORDER BY categoria_id, orden
+  - SELECT \\\* FROM faq\\\_categorias ORDER BY orden
+  - SELECT \\\* FROM faq\\\_preguntas WHERE publicado=true ORDER BY categoria\\\_id, orden
 
-acciones_por_rol:
+acciones\\\_por\\\_rol:
   personal/admin: ver botones "Editar" en cada pregunta → redirige a /admin/faq-editor.html?id=N
 ```
 
 ### NOTICIAS
 
 ```yaml
-archivos: [noticias/index.html, noticias/noticia.html, noticias/noticias.js]
+archivos: \\\[noticias/index.html, noticias/noticia.html, noticias/noticias.js]
 rutas:
   - /pages/noticias/
   - /pages/noticias/noticia.html?id=N
 
 queries:
   index:
-    - SELECT id,titulo,resumen,portada_url,categoria,publicado_en FROM noticias
-      WHERE publicado=true ORDER BY publicado_en DESC LIMIT 12
-    - filtro_por_categoria: agregar .eq('categoria', valor) si param ?cat= presente
+    - SELECT id,titulo,resumen,portada\\\_url,categoria,publicado\\\_en FROM noticias
+      WHERE publicado=true ORDER BY publicado\\\_en DESC LIMIT 12
+    - filtro\\\_por\\\_categoria: agregar .eq('categoria', valor) si param ?cat= presente
 
   noticia:
-    - SELECT n.*,p.nombre_completo AS autor FROM noticias n
-      LEFT JOIN perfiles p ON n.autor_id=p.id
+    - SELECT n.\\\*,p.nombre\\\_completo AS autor FROM noticias n
+      LEFT JOIN perfiles p ON n.autor\\\_id=p.id
       WHERE n.id=? AND n.publicado=true
 
-ui_index:
+ui\\\_index:
   - grid responsive de tarjetas (.grid-tarjetas)
   - cada tarjeta: imagen portada, badge categoría, título, resumen truncado, fecha
   - filtros por categoría: botones pill sobre el grid (Todos | Noticia | Anuncio | Taller | Curso | Evento)
@@ -839,30 +841,30 @@ ui_index:
 ### DOCUMENTOS
 
 ```yaml
-archivos: [documentos/index.html, documentos/documentos.js]
+archivos: \\\[documentos/index.html, documentos/documentos.js]
 ruta: /pages/documentos/
-acceso_minimo: estudiante (requiereAutenticacion('estudiante') al inicio del JS)
+acceso\\\_minimo: estudiante (requiereAutenticacion('estudiante') al inicio del JS)
 
 query:
-  - SELECT * FROM documentos ORDER BY categoria, creado_en DESC
+  - SELECT \\\* FROM documentos ORDER BY categoria, creado\\\_en DESC
 
-ui: agrupado por categoría, cada item: icono PDF, título, descripción, botón descargar (target="_blank")
+ui: agrupado por categoría, cada item: icono PDF, título, descripción, botón descargar (target="\\\_blank")
 
-storage_bucket: 'documentos' (configurar en Supabase Storage como bucket público o con signed URLs)
+storage\\\_bucket: 'documentos' (configurar en Supabase Storage como bucket público o con signed URLs)
 ```
 
 ### CALENDARIO
 
 ```yaml
-archivos: [calendario/index.html, calendario/calendario.js]
+archivos: \\\[calendario/index.html, calendario/calendario.js]
 ruta: /pages/calendario/
 
 query:
-  - SELECT * FROM calendario_eventos ORDER BY fecha_inicio ASC
+  - SELECT \\\* FROM calendario\\\_eventos ORDER BY fecha\\\_inicio ASC
 
 ui:
-  - vista_lista: eventos agrupados por mes, con línea de color lateral (ev.color)
-  - sección "Próximos eventos": filtrar fecha_inicio >= hoy
+  - vista\\\_lista: eventos agrupados por mes, con línea de color lateral (ev.color)
+  - sección "Próximos eventos": filtrar fecha\\\_inicio >= hoy
   - botón opcional: "Descargar PDF" (puede ser window.print() con estilos de impresión)
 ```
 
@@ -871,33 +873,33 @@ ui:
 ```yaml
 implementacion: SOLO botones de enlace (no widget/feed live de Instagram)
 ubicacion: footer y opcionalmente sección en index.html
-fuente_datos: tabla configuracion_sitio (claves: instagram_url, whatsapp_url, telegram_url)
-abrir_en: target="_blank" rel="noopener noreferrer"
+fuente\\\_datos: tabla configuracion\\\_sitio (claves: instagram\\\_url, whatsapp\\\_url, telegram\\\_url)
+abrir\\\_en: target="\\\_blank" rel="noopener noreferrer"
 iconos: usar emojis (📷 💬 ✈️) o SVG simples; NO depender de librerías de iconos externas
 ```
 
 ### AUTH
 
 ```yaml
-archivos: [auth/login.html, auth/registro.html, auth/recuperar-contrasena.html, auth/auth.js]
+archivos: \\\[auth/login.html, auth/registro.html, auth/recuperar-contrasena.html, auth/auth.js]
 
-flujo_registro:
-  1. Usuario llena: nombre_completo, email, contraseña (mínimo 6 chars)
-  2. supabase.auth.signUp({ email, password, options:{ data:{ nombre_completo } } })
+flujo\\\_registro:
+  1. Usuario llena: nombre\\\_completo, email, contraseña (mínimo 6 chars)
+  2. supabase.auth.signUp({ email, password, options:{ data:{ nombre\\\_completo } } })
   3. Supabase envía email verificación automáticamente
   4. Trigger crea perfil con rol='estudiante'
   5. Mostrar: "Revisa tu correo para verificar tu cuenta"
 
-flujo_login:
+flujo\\\_login:
   1. supabase.auth.signInWithPassword({ email, password })
   2. Si ok → redirigir a redirect param o a /index.html
   3. Si error → mostrar mensaje en español
 
-flujo_recuperar:
+flujo\\\_recuperar:
   1. supabase.auth.resetPasswordForEmail(email, { redirectTo: 'https://unexca.vercel.app/pages/auth/nueva-contrasena.html' })
   2. Mostrar: "Se envió un enlace a tu correo"
 
-errores_comunes_supabase:
+errores\\\_comunes\\\_supabase:
   'Invalid login credentials': 'Correo o contraseña incorrectos.'
   'Email not confirmed': 'Verifica tu correo antes de iniciar sesión.'
   'User already registered': 'Ya existe una cuenta con este correo.'
@@ -907,28 +909,28 @@ errores_comunes_supabase:
 ### PANEL ADMIN
 
 ```yaml
-archivos: [admin/*.html, admin/admin.js]
+archivos: \\\[admin/\\\*.html, admin/admin.js]
 ruta: /admin/
 guard: await requiereAutenticacion('admin') — primera línea de admin.js
 
 paginas:
   index.html:
-    - stats: count(perfiles), count(wiki_articulos WHERE publicado), count(faq_preguntas WHERE publicado), count(noticias WHERE publicado)
+    - stats: count(perfiles), count(wiki\\\_articulos WHERE publicado), count(faq\\\_preguntas WHERE publicado), count(noticias WHERE publicado)
     - links rápidos a cada sección del admin
 
   usuarios.html:
-    - tabla: nombre_completo, email, rol (select editable), activo (toggle), fecha registro
+    - tabla: nombre\\\_completo, email, rol (select editable), activo (toggle), fecha registro
     - acción cambiar rol: UPDATE perfiles SET rol=? WHERE id=?
     - acción desactivar: UPDATE perfiles SET activo=false WHERE id=?
 
   wiki-editor.html:
     - lista de todos los artículos (publicados y borradores)
-    - formulario crear/editar: categoria_id (select), titulo, contenido (textarea), publicado (checkbox)
+    - formulario crear/editar: categoria\\\_id (select), titulo, contenido (textarea), publicado (checkbox)
     - acción eliminar con confirm()
 
   faq-editor.html:
     - lista de preguntas por categoría
-    - formulario: categoria_id, pregunta, respuesta, orden, publicado
+    - formulario: categoria\\\_id, pregunta, respuesta, orden, publicado
 
   noticias-editor.html:
     - lista de noticias
@@ -937,21 +939,21 @@ paginas:
 
   documentos-editor.html:
     - lista de documentos
-    - formulario: titulo, descripcion, categoria, carrera, acceso_minimo
+    - formulario: titulo, descripcion, categoria, carrera, acceso\\\_minimo
     - subida PDF: supabase.storage.from('documentos').upload(...)
 
   calendario-editor.html:
     - lista de eventos
-    - formulario: titulo, descripcion, fecha_inicio, fecha_fin, tipo, color (input type="color")
+    - formulario: titulo, descripcion, fecha\\\_inicio, fecha\\\_fin, tipo, color (input type="color")
 
   configuracion.html:
-    - campos para cada clave de configuracion_sitio (instagram_url, whatsapp_url, telegram_url)
-    - guardar: UPDATE configuracion_sitio SET valor=? WHERE clave=?
+    - campos para cada clave de configuracion\\\_sitio (instagram\\\_url, whatsapp\\\_url, telegram\\\_url)
+    - guardar: UPDATE configuracion\\\_sitio SET valor=? WHERE clave=?
 ```
 
----
+\---
 
-## [COMPONENTES] NAVBAR Y FOOTER
+## \[COMPONENTES] NAVBAR Y FOOTER
 
 ### Navbar HTML (components/navbar.html)
 
@@ -999,7 +1001,7 @@ paginas:
     <div class="footer-redes">
       <h4>Síguenos</h4>
       <div class="redes-botones" id="redes-botones">
-        <!-- Cargado dinámicamente desde configuracion_sitio -->
+        <!-- Cargado dinámicamente desde configuracion\\\_sitio -->
       </div>
     </div>
     <div class="footer-links">
@@ -1025,37 +1027,37 @@ paginas:
 ```javascript
 async function cargarRedesSociales() {
   const { data } = await supabase
-    .from('configuracion_sitio')
+    .from('configuracion\\\_sitio')
     .select('clave, valor')
-    .in('clave', ['instagram_url', 'whatsapp_url', 'telegram_url']);
+    .in('clave', \\\['instagram\\\_url', 'whatsapp\\\_url', 'telegram\\\_url']);
 
-  const mapa = { instagram_url: '📷 Instagram', whatsapp_url: '💬 WhatsApp', telegram_url: '✈️ Telegram' };
+  const mapa = { instagram\\\_url: '📷 Instagram', whatsapp\\\_url: '💬 WhatsApp', telegram\\\_url: '✈️ Telegram' };
   const contenedor = document.getElementById('redes-botones');
-  if (contenedor && data) {
+  if (contenedor \\\&\\\& data) {
     contenedor.innerHTML = data
       .filter(r => r.valor)
-      .map(r => `<a href="${r.valor}" class="btn-red-social" target="_blank" rel="noopener noreferrer">${mapa[r.clave]}</a>`)
+      .map(r => `<a href="${r.valor}" class="btn-red-social" target="\\\_blank" rel="noopener noreferrer">${mapa\\\[r.clave]}</a>`)
       .join('');
   }
 }
 ```
 
----
+\---
 
-## [SUPABASE-CRUD] PATRONES DE OPERACIONES
+## \[SUPABASE-CRUD] PATRONES DE OPERACIONES
 
 ```javascript
 // ── LEER ──────────────────────────────────────────────
 const { data, error } = await supabase
   .from('tabla')
-  .select('col1, col2, tabla_relacionada(col)')
+  .select('col1, col2, tabla\\\_relacionada(col)')
   .eq('campo', valor)
   .order('columna', { ascending: false })
   .limit(N);
 
 // ── LEER UNO ──────────────────────────────────────────
 const { data, error } = await supabase
-  .from('tabla').select('*').eq('id', id).single();
+  .from('tabla').select('\\\*').eq('id', id).single();
 
 // ── CREAR ─────────────────────────────────────────────
 const { data, error } = await supabase
@@ -1071,7 +1073,7 @@ const { error } = await supabase
 
 // ── SUBIR ARCHIVO ─────────────────────────────────────
 async function subirArchivo(archivo, bucket, carpeta) {
-  const nombre = `${Date.now()}-${archivo.name.replace(/\s/g, '_')}`;
+  const nombre = `${Date.now()}-${archivo.name.replace(/\\\\s/g, '\\\_')}`;
   const { data, error } = await supabase.storage
     .from(bucket).upload(`${carpeta}/${nombre}`, archivo);
   if (error) throw error;
@@ -1080,27 +1082,27 @@ async function subirArchivo(archivo, bucket, carpeta) {
 
 // ── CONTAR ────────────────────────────────────────────
 const { count } = await supabase
-  .from('tabla').select('*', { count: 'exact', head: true }).eq('campo', valor);
+  .from('tabla').select('\\\*', { count: 'exact', head: true }).eq('campo', valor);
 ```
 
----
+\---
 
-## [REGLAS] CONVENCIONES OBLIGATORIAS
+## \[REGLAS] CONVENCIONES OBLIGATORIAS
 
 ### Nomenclatura
 
 ```yaml
-archivos_html:     kebab-case        (wiki-articulo.html)
-archivos_css:      kebab-case        (base-styles.css)
-archivos_js:       camelCase         (wikiLoader.js)
-variables_js:      camelCase         (let nombreUsuario)
-funciones_js:      camelCase + verbo (getArticulos, crearUsuario)
-clases_css:        kebab-case        (.card-noticia, .btn-primario)
-tablas_sql:        snake_case        (wiki_articulos)
-columnas_sql:      snake_case        (creado_en, autor_id)
-ids_html:          kebab-case        (id="noticias-grid")
-ramas_git:         tipo/descripcion  (feat/modulo-wiki)
-commits_git:       tipo: descripcion (feat: agregar módulo FAQ)
+archivos\\\_html:     kebab-case        (wiki-articulo.html)
+archivos\\\_css:      kebab-case        (base-styles.css)
+archivos\\\_js:       camelCase         (wikiLoader.js)
+variables\\\_js:      camelCase         (let nombreUsuario)
+funciones\\\_js:      camelCase + verbo (getArticulos, crearUsuario)
+clases\\\_css:        kebab-case        (.card-noticia, .btn-primario)
+tablas\\\_sql:        snake\\\_case        (wiki\\\_articulos)
+columnas\\\_sql:      snake\\\_case        (creado\\\_en, autor\\\_id)
+ids\\\_html:          kebab-case        (id="noticias-grid")
+ramas\\\_git:         tipo/descripcion  (feat/modulo-wiki)
+commits\\\_git:       tipo: descripcion (feat: agregar módulo FAQ)
 ```
 
 ### Tipos de commit
@@ -1128,24 +1130,24 @@ chore:    mantenimiento
 8. SIEMPRE verificar rol antes de renderizar botones de edición
 9. SIEMPRE var(--...) en CSS, nunca hex hardcodeado
 10. SIEMPRE mobile-first en CSS
-11. NUNCA SERVICE_ROLE_KEY en código frontend
+11. NUNCA SERVICE\\\_ROLE\\\_KEY en código frontend
 12. NUNCA subir .env a Git
 ```
 
----
+\---
 
-## [CONFIG] ARCHIVOS DE CONFIGURACIÓN
+## \[CONFIG] ARCHIVOS DE CONFIGURACIÓN
 
 ### `.gitignore`
 
 ```gitignore
 .env
 .env.local
-.env.*.local
-.DS_Store
+.env.\\\*.local
+.DS\\\_Store
 Thumbs.db
-node_modules/
-npm-debug.log*
+node\\\_modules/
+npm-debug.log\\\*
 .vscode/settings.json
 .idea/
 .vercel/
@@ -1158,8 +1160,8 @@ npm-debug.log*
 {
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/$1.html" }
+  "rewrites": \\\[
+    { "source": "/(.\\\*)", "destination": "/$1.html" }
   ]
 }
 ```
@@ -1167,25 +1169,25 @@ npm-debug.log*
 ### `.env` (plantilla — nunca subir)
 
 ```env
-SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6...
+SUPABASE\\\_URL=https://xxxxxxxxxxxx.supabase.co
+SUPABASE\\\_ANON\\\_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6...
 ```
 
-> **Nota:** Para sitios estáticos sin build step, las credenciales van hardcodeadas en `supabase-client.js`. La ANON_KEY es pública por diseño. Esto es correcto y seguro gracias a RLS.
+> \\\*\\\*Nota:\\\*\\\* Para sitios estáticos sin build step, las credenciales van hardcodeadas en `supabase-client.js`. La ANON\\\_KEY es pública por diseño. Esto es correcto y seguro gracias a RLS.
 
----
+\---
 
-## [BUILD-ORDER] ORDEN DE CONSTRUCCIÓN CON DEPENDENCIAS
+## \[BUILD-ORDER] ORDEN DE CONSTRUCCIÓN CON DEPENDENCIAS
 
 ```
 FASE 1 — Base de datos (prerequisito de todo lo demás)
   ✦ Crear proyecto en supabase.com
-  ✦ Ejecutar 01_schema.sql en SQL Editor
-  ✦ Ejecutar 02_rls.sql
-  ✦ Ejecutar 03_triggers.sql
-  ✦ Ejecutar 04_seed.sql
+  ✦ Ejecutar 01\\\_schema.sql en SQL Editor
+  ✦ Ejecutar 02\\\_rls.sql
+  ✦ Ejecutar 03\\\_triggers.sql
+  ✦ Ejecutar 04\\\_seed.sql
   ✦ Crear buckets en Storage: 'noticias' (imágenes) y 'documentos' (PDFs) — ambos públicos
-  ✦ Copiar URL y ANON_KEY al supabase-client.js
+  ✦ Copiar URL y ANON\\\_KEY al supabase-client.js
 
 FASE 2 — Repositorio y assets base (prerequisito del resto del frontend)
   ✦ Crear repositorio en GitHub
@@ -1238,57 +1240,57 @@ FASE 8 — QA y despliegue
   ✦ Probar desde dispositivo móvil real
 ```
 
----
+\---
 
-## [STATUS] ESTADO ACTUAL
+## \[STATUS] ESTADO ACTUAL
 
 ```yaml
 completado:
-  - documentacion_maestra: true
-  - esquema_db_definido: true
-  - paleta_colores_definida: true
-  - stack_definido: true
+  - documentacion\\\_maestra: true
+  - esquema\\\_db\\\_definido: true
+  - paleta\\\_colores\\\_definida: true
+  - stack\\\_definido: true
 
 pendiente:
-  - supabase_proyecto_creado: false
-  - sql_ejecutado: false
-  - repositorio_github: false
-  - carpetas_creadas: false
-  - base_css: false
-  - layout_css: false
-  - components_css: false
-  - supabase_client_js: false
-  - auth_js: false
-  - utils_js: false
-  - navbar_html: false
-  - footer_html: false
-  - index_html: false
-  - auth_login: false
-  - auth_registro: false
-  - wiki_completo: false
-  - faq_completo: false
-  - noticias_completo: false
-  - documentos_completo: false
-  - calendario_completo: false
-  - admin_completo: false
-  - deploy_vercel_netlify: false
+  - supabase\\\_proyecto\\\_creado: false
+  - sql\\\_ejecutado: false
+  - repositorio\\\_github: false
+  - carpetas\\\_creadas: false
+  - base\\\_css: false
+  - layout\\\_css: false
+  - components\\\_css: false
+  - supabase\\\_client\\\_js: false
+  - auth\\\_js: false
+  - utils\\\_js: false
+  - navbar\\\_html: false
+  - footer\\\_html: false
+  - index\\\_html: false
+  - auth\\\_login: false
+  - auth\\\_registro: false
+  - wiki\\\_completo: false
+  - faq\\\_completo: false
+  - noticias\\\_completo: false
+  - documentos\\\_completo: false
+  - calendario\\\_completo: false
+  - admin\\\_completo: false
+  - deploy\\\_vercel\\\_netlify: false
 ```
 
----
+\---
 
-## [PROMPT] INSTRUCCIÓN ESTÁNDAR PARA SOLICITUDES A IA
+## \[PROMPT] INSTRUCCIÓN ESTÁNDAR PARA SOLICITUDES A IA
 
 Usar esta estructura al pedir ayuda a cualquier IA sobre este proyecto:
 
 ```
 Proyecto: Portal Web UNEXCA (Venezuela)
 Stack: HTML5 + CSS3 + JavaScript ES6 vanilla + Supabase (PostgreSQL) + Vercel
-Contexto completo en: UNEXCA_AI_CONTEXT.md (adjunto o ya leído)
+Contexto completo en: UNEXCA\\\_AI\\\_CONTEXT.md (adjunto o ya leído)
 
-Tarea: [describir exactamente qué construir]
-Archivo objetivo: [ruta exacta del archivo]
-Tabla(s) Supabase involucrada(s): [nombre de tablas]
-Rol mínimo requerido: [visitante|estudiante|personal|admin]
+Tarea: \\\[describir exactamente qué construir]
+Archivo objetivo: \\\[ruta exacta del archivo]
+Tabla(s) Supabase involucrada(s): \\\[nombre de tablas]
+Rol mínimo requerido: \\\[visitante|estudiante|personal|admin]
 
 Restricciones:
 - Sin frameworks JS
@@ -1299,7 +1301,8 @@ Restricciones:
 - Mobile-first
 ```
 
----
+\---
 
-*UNEXCA_AI_CONTEXT.md — v1.0 — Proyecto Sociotecnológico II*
-*Actualizar este archivo ante cualquier cambio de arquitectura, schema o convenciones.*
+*UNEXCA\_AI\_CONTEXT.md — v1.0 — Proyecto Sociotecnológico II
+Actualizar este archivo ante cualquier cambio de arquitectura, schema o convenciones.*
+

@@ -93,7 +93,10 @@ async function ejecutarRegistro() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { nombre_completo: nombreCompleto } },
+      options: {
+        data: { nombre_completo: nombreCompleto },
+        emailRedirectTo: window.location.origin + '/pages/auth/login.html',
+      },
     });
 
     mostrarCarga(false);

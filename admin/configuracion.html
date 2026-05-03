@@ -24,8 +24,8 @@
   <div id="navbar-placeholder"></div>
 
   <div class="admin-layout">
+    <div class="admin-sidebar-overlay" id="admin-sidebar-overlay"></div>
     <aside class="admin-sidebar" id="admin-sidebar">
-      <button class="admin-toggle-btn" id="admin-toggle-btn" aria-label="Abrir menú">☰</button>
       <div class="admin-sidebar-logo">
         <img src="/assets/img/logo-unexca-white.png" alt="UNEXCA" height="40">
       </div>
@@ -83,6 +83,28 @@
 
           <div class="editor-acciones">
             <button class="btn btn-primario" id="btn-guardar">Guardar Cambios</button>
+          </div>
+        </form>
+
+        <!-- ═══ BARRA DE AVISO — Gestión ═══ -->
+        <form class="editor-form" id="aviso-form" style="margin-top:2rem;">
+          <h2>Barra de Aviso</h2>
+          <p class="form-ayuda">Controla la barra de aviso que aparece en la parte superior del sitio.</p>
+          <div class="config-grid">
+            <div class="form-grupo">
+              <label class="form-label-checkbox">
+                <input type="checkbox" id="aviso-activo">
+                Activar aviso
+              </label>
+            </div>
+            <div class="form-grupo">
+              <label for="aviso-texto-admin">Texto del aviso</label>
+              <input type="text" id="aviso-texto-admin" class="form-input"
+                placeholder="Ej: Inscripciones abiertas hasta el 30 de abril">
+            </div>
+          </div>
+          <div class="editor-acciones">
+            <button type="button" class="btn btn-primario" id="btn-guardar-aviso">Guardar Aviso</button>
           </div>
         </form>
       </div>
@@ -166,24 +188,85 @@
       }
     }
 
-    /* ─── Event Listeners ───────────────────────── */
+    /* ─── Cargar aviso ──────────────────────────── */
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const toggleBtn = document.getElementById('admin-toggle-btn');
-      const sidebar = document.getElementById('admin-sidebar');
-      if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', () => {
-          sidebar.classList.toggle('abierto');
-        });
+    async function cargarAviso() {
+      try {
+        const { data, error } = await supabase
+          .from('configuracion_sitio')
+          .select('clave, valor')
+          .in('clave', ['aviso_activo', 'aviso_texto']);
+
+        if (error) throw error;
+
+        const mapa = {};
+        if (data) {
+          data.forEach(row => { mapa[row.clave] = row.valor; });
+        }
+
+        const chk = document.getElementById('aviso-activo');
+        const txt = document.getElementById('aviso-texto-admin');
+        if (chk) chk.checked = mapa['aviso_activo'] === 'true';
+        if (txt) txt.value = mapa['aviso_texto'] || '';
+      } catch (err) {
+        console.error('Error al cargar aviso:', err);
       }
+    }
 
-      document.getElementById('btn-guardar').addEventListener('click', (e) => {
-        e.preventDefault();
-        guardarConfiguracion();
-      });
+    /* ─── Guardar aviso ─────────────────────────── */
+
+    async function guardarAviso() {
+      const btn = document.getElementById('btn-guardar-aviso');
+      btn.disabled = true;
+      btn.textContent = 'Guardando...';
+
+      try {
+        const activo = document.getElementById('aviso-activo').checked ? 'true' : 'false';
+        const texto = document.getElementById('aviso-texto-admin').value;
+
+        const { error: err1 } = await supabase
+          .from('configuracion_sitio')
+          .upsert({ clave: 'aviso_activo', valor: activo }, { onConflict: 'clave' });
+
+        if (err1) throw err1;
+
+        const { error: err2 } = await supabase
+          .from('configuracion_sitio')
+          .upsert({ clave: 'aviso_texto', valor: texto }, { onConflict: 'clave' });
+
+        if (err2) throw err2;
+
+        const msg = document.getElementById('admin-mensaje');
+        msg.textContent = 'Aviso guardado correctamente';
+        msg.className = 'admin-mensaje exito';
+
+        setTimeout(() => {
+          msg.className = 'admin-mensaje';
+          msg.textContent = '';
+        }, 3000);
+      } catch (err) {
+        console.error('Error al guardar aviso:', err);
+        const msg = document.getElementById('admin-mensaje');
+        msg.textContent = 'Error al guardar el aviso: ' + err.message;
+        msg.className = 'admin-mensaje error';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Guardar Aviso';
+      }
+    }
+
+    document.getElementById('btn-guardar').addEventListener('click', (e) => {
+      e.preventDefault();
+      guardarConfiguracion();
+    });
+
+    document.getElementById('btn-guardar-aviso').addEventListener('click', (e) => {
+      e.preventDefault();
+      guardarAviso();
     });
 
     cargarConfiguracion();
+    cargarAviso();
   </script>
 </body>
 

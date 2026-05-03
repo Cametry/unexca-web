@@ -2,7 +2,7 @@ await requiereAutenticacion('admin');
 
 import { supabase } from '/assets/js/supabase-client.js';
 import { requiereAutenticacion, getUsuarioActual, actualizarNavbar, cerrarSesion } from '/assets/js/auth.js';
-import { formatearFecha, mostrarCarga, incluirComponente, setAnioActual, sanitizar } from '/assets/js/utils.js';
+import { formatearFecha, mostrarCarga, incluirComponente, setAnioActual, sanitizar, initHamburguesa } from '/assets/js/utils.js';
 
 /* ─── Resaltar enlace activo en la barra lateral ─── */
 
@@ -85,10 +85,11 @@ export async function initAdmin() {
     await incluirComponente('#navbar-placeholder', '/components/navbar.html');
     await incluirComponente('#footer-placeholder', '/components/footer.html');
 
-    actualizarNavbar();
+    await actualizarNavbar();
     setAnioActual();
     resaltarNavActivo();
     cargarRedesSociales();
+    initHamburguesa();
 
     return await getUsuarioActual();
   } catch (e) {

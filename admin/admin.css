@@ -5,21 +5,6 @@
    Depende de variables CSS definidas en base.css.
    ============================================ */
 
-/* ─── Admin Toggle Button (mobile hamburger) ── */
-.admin-toggle-btn {
-  display: none;
-  position: fixed;
-  top: var(--s3);
-  left: var(--s3);
-  z-index: 101;
-  background: var(--color-primario-dark);
-  color: white;
-  border: none;
-  padding: var(--s2) var(--s3);
-  border-radius: var(--radio-md);
-  cursor: pointer;
-}
-
 /* ─── Admin Layout ──────────────────────────── */
 .admin-layout {
   display: flex;
@@ -371,6 +356,24 @@
 }
 
 /* ============================================
+   Sidebar Overlay (mobile drawer backdrop)
+   ============================================ */
+.admin-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  opacity: 0;
+  transition: opacity var(--t);
+}
+
+.admin-sidebar-overlay.visible {
+  display: block;
+  opacity: 1;
+}
+
+/* ============================================
    Responsive — Desktop (≥ 769px)
    ============================================ */
 @media (min-width: 769px) {
@@ -386,8 +389,8 @@
     margin-left: 240px;
   }
 
-  .admin-toggle-btn {
-    display: none;
+  .admin-sidebar-overlay {
+    display: none !important;
   }
 }
 
@@ -395,41 +398,83 @@
    Responsive — Mobile (≤ 768px)
    ============================================ */
 @media (max-width: 768px) {
+
+  /* ─── Sidebar: drawer from left ─────────── */
   .admin-sidebar {
     position: fixed;
-    width: 100%;
-    height: auto;
-    bottom: auto;
-    transform: translateY(-100%);
+    left: 0;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 100;
+    transform: translateX(-100%);
     transition: transform var(--t-lenta);
+    overflow-y: auto;
   }
 
-  .admin-sidebar.abierto {
-    transform: translateY(0);
+  .admin-sidebar.active {
+    transform: translateX(0);
   }
 
-  .admin-main {
-    margin-left: 0;
-    padding-top: var(--s16);
-  }
-
-  .admin-toggle-btn {
-    display: block;
-  }
-
+  /* ─── Sidebar nav: vertical list on mobile ─ */
   .admin-sidebar-nav {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
   }
 
   .admin-sidebar-nav li a {
-    padding: var(--s2) var(--s4);
-    font-size: var(--texto-xs);
+    padding: var(--s3) var(--s6);
+    font-size: var(--texto-sm);
   }
 
+  /* ─── Main content: full width ──────────── */
+  .admin-main {
+    margin-left: 0;
+    padding: var(--s4);
+    padding-top: calc(var(--alto-navbar) + var(--s8));
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* ─── Stat cards: 2 columns ─────────────── */
   .stat-cards {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* ─── Editor form: full width ───────────── */
+  .editor-form {
+    max-width: 100%;
+    padding: var(--s4);
+  }
+
+  /* ─── Config grid: single column ────────── */
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ─── Overflow-x: tables, cards, containers */
+  .admin-tabla-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-tabla {
+    min-width: 600px;
+  }
+
+  .acciones-rapidas {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  /* ─── Admin header: stack on mobile ─────── */
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-header h1 {
+    font-size: var(--texto-xl);
   }
 }
 
@@ -439,5 +484,14 @@
 @media (max-width: 480px) {
   .stat-cards {
     grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    width: 260px;
+  }
+
+  .admin-main {
+    padding: var(--s3);
+    padding-top: calc(var(--alto-navbar) + var(--s10));
   }
 }

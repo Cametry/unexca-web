@@ -1,3 +1,5 @@
+import { supabase } from './supabase-client.js';
+
 export function formatearFecha(fechaISO) {
   if (!fechaISO) return '';
   return new Date(fechaISO).toLocaleDateString('es-VE', {
@@ -58,6 +60,32 @@ export function setAnioActual(idElemento = 'anio-actual') {
 
 export function initHamburguesa() {
   const hamburguesa = document.getElementById('btn-hamburguesa');
+  if (!hamburguesa) return;
+
+  // ─── Admin pages: hamburger controls admin sidebar ───
+  if (window.location.pathname.startsWith('/admin')) {
+    const sidebar = document.getElementById('admin-sidebar');
+    const overlay = document.getElementById('admin-sidebar-overlay');
+    if (!sidebar) return;
+
+    hamburguesa.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+      if (overlay) overlay.classList.toggle('visible');
+      document.body.style.overflow =
+        sidebar.classList.contains('active') ? 'hidden' : '';
+    });
+
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('visible');
+        document.body.style.overflow = '';
+      });
+    }
+    return;
+  }
+
+  // ─── Non-admin pages: original drawer logic ───
   const drawer = document.getElementById('drawer');
   const backdrop = document.getElementById('drawer-backdrop');
   const closeBtn = document.getElementById('btn-cerrar-drawer');
@@ -89,4 +117,38 @@ export function initHamburguesa() {
 
   if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
   if (backdrop) backdrop.addEventListener('click', closeDrawer);
+}
+
+/**
+ * Carga dinámicamente la barra de aviso superior desde Supabase.
+ * Consulta las claves 'aviso_activo' y 'aviso_texto' en configuracion_sitio.
+ * Si aviso_activo = 'true' y hay texto, muestra #barra-aviso con el contenido.
+ */
+export async function cargarBarraAviso() {
+  try {
+    const { data, error } = await supabase
+      .from('configuracion_sitio')
+      .select('clave, valor')
+      .in('clave', ['aviso_activo', 'aviso_texto']);
+
+    if (error) throw error;
+
+    const mapa = {};
+    if (data) {
+      data.forEach(row => { mapa[row.clave] = row.valor; });
+    }
+
+    const activo = mapa['aviso_activo'] === 'true';
+    const texto = (mapa['aviso_texto'] || '').trim();
+
+    const barra = document.getElementById('barra-aviso');
+    const textoEl = document.getElementById('aviso-texto');
+
+    if (activo && texto && barra && textoEl) {
+      textoEl.textContent = texto;
+      barra.style.display = 'block';
+    }
+  } catch (e) {
+    console.error('Error al cargar barra de aviso:', e);
+  }
 }
