@@ -332,6 +332,16 @@
   color: #721c24;
 }
 
+.badge-categoria {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radio-sm);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  background: #e9ecef;
+  color: #212529;
+}
+
 /* ─── Success / Error Messages ──────────────── */
 .admin-mensaje {
   padding: var(--s3) var(--s4);

@@ -164,10 +164,19 @@
     /* ─── Load events ──────────────────────────── */
     async function cargarEventos() {
       try {
-        const { data, error } = await supabase
+        const usuario = await getUsuarioActual();
+        const esPersonal = usuario?.perfil?.rol === 'personal';
+
+        let query = supabase
           .from('calendario_eventos')
           .select('*')
           .order('fecha_inicio', { ascending: false });
+
+        if (esPersonal) {
+          query = query.eq('creado_por', usuario.id);
+        }
+
+        const { data, error } = await query;
 
         if (error) throw error;
 

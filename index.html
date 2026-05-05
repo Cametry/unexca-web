@@ -351,9 +351,11 @@
         lista.innerHTML = data.map(e => {
           const day = new Date(e.fecha_inicio).getDate();
           const month = new Date(e.fecha_inicio).toLocaleDateString('es-VE', { month: 'short' }).toUpperCase();
-          const tipoClass = e.tipo ? 'event-item--' + e.tipo.toLowerCase() : '';
+          const borderColor = e.color || '#022A6F';
+          const tipoSlug = e.tipo ? e.tipo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
+          const tipoClass = tipoSlug ? 'event-type--' + tipoSlug : '';
           return `
-            <a href="/pages/calendario/" class="event-item ${tipoClass}">
+            <a href="/pages/calendario/" class="event-item" style="border-left: 4px solid ${borderColor}">
               <div class="event-date">
                 <div class="event-date-day">${day}</div>
                 <div class="event-date-month">${month}</div>
@@ -362,7 +364,7 @@
                 <h3 class="event-title">${e.titulo}</h3>
                 ${e.descripcion ? `<p class="event-desc">${truncar(e.descripcion, 100)}</p>` : ''}
               </div>
-              <span class="event-type ${tipoClass ? 'event-type--' + e.tipo.toLowerCase() : ''}">${e.tipo || 'Evento'}</span>
+              <span class="event-type ${tipoClass}">${e.tipo || 'Evento'}</span>
             </a>
           `;
         }).join('');

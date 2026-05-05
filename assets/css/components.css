@@ -719,7 +719,7 @@
 }
 
 .event-type--inscripcion {
-  background: var(--capa-azul-10);
+  background: rgba(2, 42, 111, 0.12);
   color: var(--color-primario);
 }
 

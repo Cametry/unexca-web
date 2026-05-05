@@ -163,10 +163,19 @@
     /* ─── Load documents ────────────────────────── */
     async function cargarDocumentos() {
       try {
-        const { data, error } = await supabase
+        const usuario = await getUsuarioActual();
+        const esPersonal = usuario?.perfil?.rol === 'personal';
+
+        let query = supabase
           .from('documentos')
           .select('*')
           .order('creado_en', { ascending: false });
+
+        if (esPersonal) {
+          query = query.eq('subido_por', usuario.id);
+        }
+
+        const { data, error } = await query;
 
         if (error) throw error;
 
