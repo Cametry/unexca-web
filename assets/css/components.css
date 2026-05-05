@@ -887,6 +887,27 @@
   background: var(--color-rol-estudiante);
 }
 
+/* ─── BADGES DE CATEGORÍA (noticias) ─── */
+.badge--noticia {
+  background: var(--color-primario);
+}
+
+.badge--anuncio {
+  background: var(--color-advertencia);
+}
+
+.badge--taller {
+  background: var(--color-exito);
+}
+
+.badge--curso {
+  background: var(--color-tipo-graduacion);
+}
+
+.badge--evento {
+  background: var(--color-tipo-evento);
+}
+
 /* ════════════════════════════════════════════════════════════
    LEGACY — Clases heredadas del diseño anterior
    ════════════════════════════════════════════════════════════ */

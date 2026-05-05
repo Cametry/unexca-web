@@ -260,27 +260,35 @@
       }
 
       if (grid) {
-        grid.innerHTML = data.map(n => `
-          <article class="news-card">
-            <a href="/pages/noticias/noticia?id=${n.id}" style="display:contents;color:inherit">
-              <div class="news-cover news-cover-bg-1">
-                <span class="news-badge news-badge--noticia">${n.categoria || 'Noticia'}</span>
-                <div class="news-cover-mark" aria-hidden="true"></div>
-              </div>
-              <div class="news-body">
-                <div class="news-meta">
-                  <span>${formatearFecha(n.publicado_en)}</span>
+        grid.innerHTML = data.map(n => {
+          const categoriaLower = (n.categoria || 'noticia').toLowerCase();
+          const coverStyle = n.portada_url
+            ? `style="background-image:url('${n.portada_url}');background-size:cover;background-position:center"`
+            : '';
+          const coverClass = n.portada_url ? 'news-cover' : 'news-cover news-cover-bg-1';
+
+          return `
+            <article class="news-card">
+              <a href="/pages/noticias/noticia?id=${n.id}" style="display:contents;color:inherit">
+                <div class="${coverClass}" ${coverStyle}>
+                  <span class="news-badge news-badge--${categoriaLower}">${n.categoria || 'Noticia'}</span>
+                  <div class="news-cover-mark" aria-hidden="true"></div>
                 </div>
-                <h3 class="news-title">${n.titulo}</h3>
-                <p class="news-resumen">${truncar(n.resumen, 120)}</p>
-                <div class="news-foot">
-                  Leer noticia
-                  <svg class="ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+                <div class="news-body">
+                  <div class="news-meta">
+                    <span>${formatearFecha(n.publicado_en)}</span>
+                  </div>
+                  <h3 class="news-title">${n.titulo}</h3>
+                  <p class="news-resumen">${truncar(n.resumen, 120)}</p>
+                  <div class="news-foot">
+                    Leer noticia
+                    <svg class="ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+                  </div>
                 </div>
-              </div>
-            </a>
-          </article>
-        `).join('');
+              </a>
+            </article>
+          `;
+        }).join('');
       }
     }
 

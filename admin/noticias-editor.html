@@ -183,7 +183,7 @@
 
         tablaNoticias.innerHTML = data.map(n => {
           const titulo = sanitizar(n.titulo.length > 60 ? n.titulo.slice(0, 60) + '...' : n.titulo);
-          const categoria = `<span class="badge badge-categoria">${sanitizar(n.categoria)}</span>`;
+          const categoria = `<span class="badge badge--${(n.categoria || '').toLowerCase()}">${sanitizar(n.categoria)}</span>`;
           const destacada = n.destacado ? '✓' : '✗';
           const estado = n.publicado
             ? '<span class="badge badge-publicado">Publicado</span>'

@@ -160,7 +160,10 @@ async function cargarNoticia() {
 
     // Badge
     const badgeEl = document.getElementById('noticia-badge');
-    if (badgeEl) badgeEl.textContent = noticia.categoria;
+    if (badgeEl) {
+      badgeEl.textContent = noticia.categoria;
+      badgeEl.className = 'badge badge--' + (noticia.categoria || '').toLowerCase();
+    }
 
     // Título
     const tituloEl = document.getElementById('noticia-titulo');
