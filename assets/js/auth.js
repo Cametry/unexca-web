@@ -38,7 +38,7 @@ export async function actualizarNavbar() {
     const spanNombre = document.getElementById('navbar-nombre-usuario');
     if (spanNombre) spanNombre.textContent = usuario.perfil?.nombre_completo || usuario.email;
     const linkAdmin = document.getElementById('link-admin');
-    if (linkAdmin) linkAdmin.style.display = usuario.perfil?.rol === 'admin' ? 'inline' : 'none';
+    if (linkAdmin) linkAdmin.style.display = (usuario.perfil?.rol === 'admin' || usuario.perfil?.rol === 'personal') ? 'inline' : 'none';
   }
   document.getElementById('btn-logout')?.addEventListener('click', cerrarSesion);
 }

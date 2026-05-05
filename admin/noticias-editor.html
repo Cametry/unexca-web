@@ -169,10 +169,19 @@
     /* ─── Load news ─────────────────────────────── */
     async function cargarNoticias() {
       try {
-        const { data, error } = await supabase
+        const usuario = await getUsuarioActual();
+        const esPersonal = usuario?.perfil?.rol === 'personal';
+
+        let query = supabase
           .from('noticias')
           .select('*')
           .order('creado_en', { ascending: false });
+
+        if (esPersonal) {
+          query = query.eq('autor_id', usuario.id);
+        }
+
+        const { data, error } = await query;
 
         if (error) throw error;
 
