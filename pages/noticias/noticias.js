@@ -191,12 +191,14 @@ async function cargarNoticia() {
     const migaEl = document.getElementById('miga-noticia');
     if (migaEl) migaEl.textContent = noticia.titulo;
 
-    // Botón editar — visible solo si rol IN (personal, admin)
+    // Botón editar — visible solo si admin, o personal Y autor de la noticia
     const btnEditar = document.getElementById('btn-editar');
     if (btnEditar) {
       const usuario = await getUsuarioActual();
       const rol = usuario?.perfil?.rol;
-      if (rol === 'personal' || rol === 'admin') {
+      const esAdmin = rol === 'admin';
+      const esAutor = rol === 'personal' && noticia.autor_id === usuario.id;
+      if (esAdmin || esAutor) {
         btnEditar.style.display = 'inline-flex';
         btnEditar.href = `/admin/noticias-editor.html?editar=${noticiaId}`;
       }

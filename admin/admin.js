@@ -1,4 +1,4 @@
-await requiereAutenticacion('admin');
+await requiereAutenticacion('personal');
 
 import { supabase } from '/assets/js/supabase-client.js';
 import { requiereAutenticacion, getUsuarioActual, actualizarNavbar, cerrarSesion } from '/assets/js/auth.js';
@@ -80,7 +80,7 @@ export async function cargarRedesSociales() {
 
 export async function initAdmin() {
   try {
-    await requiereAutenticacion('admin');
+    await requiereAutenticacion('personal');
 
     await incluirComponente('#navbar-placeholder', '/components/navbar.html');
     await incluirComponente('#footer-placeholder', '/components/footer.html');
@@ -91,7 +91,17 @@ export async function initAdmin() {
     cargarRedesSociales();
     initHamburguesa();
 
-    return await getUsuarioActual();
+    const usuario = await getUsuarioActual();
+
+    // Ocultar links restringidos para rol personal
+    if (usuario?.perfil?.rol === 'personal') {
+      const linkUsuarios = document.querySelector('.admin-sidebar a[href="/admin/usuarios.html"]');
+      const linkConfig = document.querySelector('.admin-sidebar a[href="/admin/configuracion.html"]');
+      if (linkUsuarios) linkUsuarios.closest('li').style.display = 'none';
+      if (linkConfig) linkConfig.closest('li').style.display = 'none';
+    }
+
+    return usuario;
   } catch (e) {
     console.error('Error en initAdmin:', e);
   }

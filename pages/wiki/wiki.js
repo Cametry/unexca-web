@@ -209,12 +209,14 @@ async function cargarArticulo() {
       btnVolver.href = `/pages/wiki/categoria?id=${articulo.categoria_id}`;
     }
 
-    // Botón editar — visible solo si rol IN (personal, admin)
+    // Botón editar — visible solo si admin, o personal Y autor del artículo
     const btnEditar = document.getElementById('btn-editar');
     if (btnEditar) {
       const usuario = await getUsuarioActual();
       const rol = usuario?.perfil?.rol;
-      if (rol === 'personal' || rol === 'admin') {
+      const esAdmin = rol === 'admin';
+      const esAutor = rol === 'personal' && articulo.autor_id === usuario.id;
+      if (esAdmin || esAutor) {
         btnEditar.style.display = 'inline-flex';
         btnEditar.href = `/admin/wiki-editor.html?editar=${articuloId}`;
       }
