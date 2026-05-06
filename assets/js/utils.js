@@ -56,6 +56,8 @@ export async function incluirComponente(selector, ruta) {
 
 export function setNavActivo() {
   const path = window.location.pathname;
+
+  // ─── Navbar desktop ───
   document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('is-active'));
   let link;
   if (path === '/' || path === '/index.html') {
@@ -72,6 +74,24 @@ export function setNavActivo() {
     link = document.querySelector('.nav-link[href="/pages/faq/"]');
   }
   if (link) link.classList.add('is-active');
+
+  // ─── Drawer móvil ───
+  document.querySelectorAll('.drawer-link').forEach(el => el.classList.remove('is-active'));
+  let drawerLink;
+  if (path === '/' || path === '/index.html') {
+    drawerLink = document.querySelector('.drawer-link[href="/"]');
+  } else if (path.includes('/wiki')) {
+    drawerLink = document.querySelector('.drawer-link[href="/pages/wiki/"]');
+  } else if (path.includes('/noticias')) {
+    drawerLink = document.querySelector('.drawer-link[href="/pages/noticias/"]');
+  } else if (path.includes('/documentos')) {
+    drawerLink = document.querySelector('.drawer-link[href="/pages/documentos/"]');
+  } else if (path.includes('/calendario')) {
+    drawerLink = document.querySelector('.drawer-link[href="/pages/calendario/"]');
+  } else if (path.includes('/faq')) {
+    drawerLink = document.querySelector('.drawer-link[href="/pages/faq/"]');
+  }
+  if (drawerLink) drawerLink.classList.add('is-active');
 }
 
 export function setAnioActual(idElemento = 'anio-actual') {

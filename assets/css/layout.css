@@ -182,9 +182,11 @@ main {
   }
 }
 
-/* Hide navbar user section on mobile — only show inside drawer */
+/* On mobile, hide Panel and Salir buttons from navbar (shown in drawer instead) */
 @media (max-width:1023px) {
-  .navbar-usuario {
+
+  .navbar-usuario #link-admin,
+  .navbar-usuario #btn-logout {
     display: none !important;
   }
 }
