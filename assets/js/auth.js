@@ -31,7 +31,30 @@ export async function actualizarNavbar() {
   const usuario = await getUsuarioActual();
   const btnLogin = document.getElementById('btn-login-nav');
   const divUsuario = document.getElementById('navbar-usuario');
-  if (!usuario) { btnLogin?.style && (btnLogin.style.display = 'block'); return; }
+
+  /* ─── Elementos del drawer ─── */
+  const drawerUserActions = document.getElementById('drawer-user-actions');
+  const drawerGreeting = document.getElementById('drawer-user-greeting');
+  const drawerLinkAdmin = document.getElementById('drawer-link-admin');
+  const drawerBtnLogout = document.getElementById('drawer-btn-logout');
+  const drawerFoot = document.getElementById('drawer-foot');
+  const drawerBtnLogin = document.getElementById('drawer-btn-login');
+  const drawerBtnRegistro = document.getElementById('drawer-btn-registro');
+
+  if (!usuario) {
+    /* ─── LOGOUT ─── */
+    if (btnLogin) btnLogin.style.display = '';
+    if (divUsuario) divUsuario.style.display = 'none';
+
+    /* Drawer: ocultar sección usuario, mostrar login/register */
+    if (drawerUserActions) drawerUserActions.style.display = 'none';
+    if (drawerFoot) drawerFoot.style.display = '';
+    if (drawerBtnLogin) drawerBtnLogin.style.display = '';
+    if (drawerBtnRegistro) drawerBtnRegistro.style.display = '';
+    return;
+  }
+
+  /* ─── LOGIN ─── */
   if (btnLogin) btnLogin.style.display = 'none';
   if (divUsuario) {
     divUsuario.style.display = 'flex';
@@ -40,5 +63,21 @@ export async function actualizarNavbar() {
     const linkAdmin = document.getElementById('link-admin');
     if (linkAdmin) linkAdmin.style.display = (usuario.perfil?.rol === 'admin' || usuario.perfil?.rol === 'personal') ? 'inline' : 'none';
   }
+
+  /* Drawer: mostrar sección usuario, ocultar login/register */
+  if (drawerUserActions) drawerUserActions.style.display = 'flex';
+  if (drawerFoot) drawerFoot.style.display = 'none';
+  if (drawerBtnLogin) drawerBtnLogin.style.display = 'none';
+  if (drawerBtnRegistro) drawerBtnRegistro.style.display = 'none';
+
+  if (drawerGreeting) {
+    drawerGreeting.textContent = usuario.perfil?.nombre_completo || usuario.email;
+  }
+  if (drawerLinkAdmin) {
+    drawerLinkAdmin.style.display = (usuario.perfil?.rol === 'admin' || usuario.perfil?.rol === 'personal') ? 'flex' : 'none';
+  }
+
+  /* Eventos (solo una vez) */
   document.getElementById('btn-logout')?.addEventListener('click', cerrarSesion);
+  drawerBtnLogout?.addEventListener('click', cerrarSesion);
 }

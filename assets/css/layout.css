@@ -164,13 +164,6 @@ main {
   }
 }
 
-/* ─── RESPONSIVE: ocultar saludo en navbar ─── */
-@media (max-width:640px) {
-  .navbar-saludo {
-    display: none;
-  }
-}
-
 .nav-menu {
   display: none;
   gap: var(--s1);
@@ -460,6 +453,28 @@ main {
 .drawer-link.is-active .drawer-icon {
   background: var(--color-primario-dark);
   color: var(--color-blanco);
+}
+
+/* ─── DRAWER: sección de usuario (Panel + Salir) ─── */
+.drawer-user-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  padding: var(--s4);
+  border-top: 1px solid var(--color-borde-suave);
+  margin-top: auto;
+}
+
+.drawer-user-greeting {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-texto-base);
+  padding: var(--s2) var(--s4) var(--s3);
+  border-bottom: 1px solid var(--color-borde-suave);
+  margin-bottom: var(--s2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .drawer-foot {

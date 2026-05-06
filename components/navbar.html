@@ -118,8 +118,37 @@
       <span>FAQ</span>
     </a>
   </nav>
-  <div class="drawer-foot">
-    <a href="/pages/auth/login.html" class="btn btn-secundario btn-lg">Iniciar sesión</a>
-    <a href="/pages/auth/registro.html" class="btn btn-primario btn-lg">Registrarse</a>
+
+  <!-- Sección de usuario dentro del drawer (oculta por defecto) -->
+  <div class="drawer-user-actions" id="drawer-user-actions" style="display:none">
+    <div class="drawer-user-greeting" id="drawer-user-greeting"></div>
+    <a href="/admin/" id="drawer-link-admin" class="drawer-link" style="display:none">
+      <span class="drawer-icon">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+      </span>
+      <span>Panel</span>
+    </a>
+    <button id="drawer-btn-logout" class="drawer-link" style="cursor:pointer">
+      <span class="drawer-icon">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </span>
+      <span>Salir</span>
+    </button>
+  </div>
+
+  <div class="drawer-foot" id="drawer-foot">
+    <a href="/pages/auth/login.html" class="btn btn-secundario btn-lg" id="drawer-btn-login">Iniciar sesión</a>
+    <a href="/pages/auth/registro.html" class="btn btn-primario btn-lg" id="drawer-btn-registro">Registrarse</a>
   </div>
 </aside>
