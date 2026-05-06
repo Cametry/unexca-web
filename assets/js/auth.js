@@ -34,7 +34,6 @@ export async function actualizarNavbar() {
 
   /* ─── Elementos del drawer ─── */
   const drawerUserActions = document.getElementById('drawer-user-actions');
-  const drawerGreeting = document.getElementById('drawer-user-greeting');
   const drawerLinkAdmin = document.getElementById('drawer-link-admin');
   const drawerBtnLogout = document.getElementById('drawer-btn-logout');
   const drawerFoot = document.getElementById('drawer-foot');
@@ -61,7 +60,12 @@ export async function actualizarNavbar() {
     const spanNombre = document.getElementById('navbar-nombre-usuario');
     if (spanNombre) spanNombre.textContent = usuario.perfil?.nombre_completo || usuario.email;
     const linkAdmin = document.getElementById('link-admin');
-    if (linkAdmin) linkAdmin.style.display = (usuario.perfil?.rol === 'admin' || usuario.perfil?.rol === 'personal') ? 'inline' : 'none';
+    if (linkAdmin) {
+      linkAdmin.style.display = (usuario.perfil?.rol === 'admin' || usuario.perfil?.rol === 'personal') ? 'inline' : 'none';
+      if (window.location.pathname.startsWith('/admin/')) {
+        linkAdmin.style.display = 'none';
+      }
+    }
   }
 
   /* Drawer: mostrar sección usuario, ocultar login/register */
@@ -70,11 +74,11 @@ export async function actualizarNavbar() {
   if (drawerBtnLogin) drawerBtnLogin.style.display = 'none';
   if (drawerBtnRegistro) drawerBtnRegistro.style.display = 'none';
 
-  if (drawerGreeting) {
-    drawerGreeting.textContent = usuario.perfil?.nombre_completo || usuario.email;
-  }
   if (drawerLinkAdmin) {
     drawerLinkAdmin.style.display = (usuario.perfil?.rol === 'admin' || usuario.perfil?.rol === 'personal') ? 'flex' : 'none';
+    if (window.location.pathname.startsWith('/admin/')) {
+      drawerLinkAdmin.style.display = 'none';
+    }
   }
 
   /* Eventos (solo una vez) */
