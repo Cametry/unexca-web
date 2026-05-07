@@ -488,6 +488,85 @@
   }
 }
 
+/* ─── Toast notifications (H7) ──────────────── */
+#toast-contenedor {
+  position: fixed;
+  top: calc(var(--alto-navbar) + var(--s4));
+  right: var(--s4);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  pointer-events: none;
+}
+
+.toast {
+  padding: var(--s3) var(--s6);
+  border-radius: var(--radio-md);
+  font-size: var(--texto-sm);
+  font-weight: 500;
+  box-shadow: var(--sombra-lg);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  max-width: 360px;
+}
+
+.toast--visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast--exito {
+  background: #166534;
+  color: #fff;
+  border-left: 4px solid #22c55e;
+}
+
+.toast--error {
+  background: #991b1b;
+  color: #fff;
+  border-left: 4px solid #ef4444;
+}
+
+.toast--info {
+  background: #1e40af;
+  color: #fff;
+  border-left: 4px solid #3b82f6;
+}
+
+/* ─── Paginación (H6) ──────────────────────── */
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  padding: var(--s4) 0;
+  flex-wrap: wrap;
+}
+
+.pag-btn {
+  min-width: 36px;
+  text-align: center;
+  font-size: var(--texto-sm);
+}
+
+.pag-btn--activo {
+  background: var(--color-primario-dark);
+  color: var(--color-blanco);
+  border-color: var(--color-primario-dark);
+}
+
+.pag-btn--activo:hover {
+  background: var(--color-primario);
+}
+
+.pag-ellipsis {
+  color: var(--color-texto-muted);
+  padding: 0 var(--s1);
+}
+
 /* ============================================
    Responsive — Small Mobile (≤ 480px)
    ============================================ */

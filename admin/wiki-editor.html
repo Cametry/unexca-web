@@ -20,6 +20,7 @@
   <div id="spinner" class="spinner" style="display:none;">
     <div class="spinner-circle"></div>
   </div>
+  <div id="toast-contenedor"></div>
 
   <div id="navbar-placeholder"></div>
 
@@ -98,6 +99,7 @@
             <tbody id="tabla-articulos"></tbody>
           </table>
         </div>
+        <div id="paginacion-articulos"></div>
       </div>
     </main>
   </div>
@@ -107,258 +109,106 @@
   <script type="module">
     await requiereAutenticacion('personal');
 
-    import { requiereAutenticacion, getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
+    import { requiereAutenticacion, actualizarNavbar } from '/assets/js/auth.js';
     import { supabase } from '/assets/js/supabase-client.js';
     import { initAdmin } from '/admin/admin.js';
     import { formatearFecha, sanitizar } from '/assets/js/utils.js';
+    import { crearCRUD } from '/admin/crud-base.js';
 
     await initAdmin();
 
-    /* ─── State ─────────────────────────────────── */
-    let modoEdicion = false;
-    let articuloEditandoId = null;
-
-    /* ─── DOM references ────────────────────────── */
-    const $ = (id) => document.getElementById(id);
-    const editorForm = $('editor-form');
-    const formTitulo = $('form-titulo');
-    const articuloId = $('articulo-id');
-    const formCategoria = $('form-categoria');
-    const formTituloInput = $('form-titulo-input');
-    const formContenido = $('form-contenido');
-    const formPublicado = $('form-publicado');
-    const btnGuardar = $('btn-guardar');
-    const btnCancelar = $('btn-cancelar');
-    const btnNuevo = $('btn-nuevo-articulo');
-    const tablaArticulos = $('tabla-articulos');
-    const mensaje = $('admin-mensaje');
-
-    /* ─── Message helper ────────────────────────── */
-    function mostrarMensaje(texto, tipo) {
-      mensaje.textContent = texto;
-      mensaje.className = 'admin-mensaje ' + tipo;
-      setTimeout(() => {
-        mensaje.className = 'admin-mensaje';
-        mensaje.textContent = '';
-      }, 3000);
-    }
-
-    /* ─── Load categories ───────────────────────── */
+    /* ─── Cargar categorías (lógica específica) ── */
     async function cargarCategorias() {
-      try {
-        const { data, error } = await supabase
-          .from('wiki_categorias')
-          .select('id, nombre')
-          .order('orden');
-
-        if (error) throw error;
-
-        formCategoria.innerHTML = '<option value="">Seleccionar categoría...</option>';
-        if (data) {
-          data.forEach(cat => {
-            const opt = document.createElement('option');
-            opt.value = cat.id;
-            opt.textContent = cat.nombre;
-            formCategoria.appendChild(opt);
-          });
-        }
-      } catch (err) {
-        console.error('Error al cargar categorías:', err);
-        mostrarMensaje('Error al cargar categorías: ' + err.message, 'error');
+      const { data, error } = await supabase
+        .from('wiki_categorias')
+        .select('id, nombre')
+        .order('orden');
+      if (error) throw error;
+      const sel = document.getElementById('form-categoria');
+      sel.innerHTML = '<option value="">Seleccionar categoría...</option>';
+      if (data) {
+        data.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat.id;
+          opt.textContent = cat.nombre;
+          sel.appendChild(opt);
+        });
       }
     }
 
-    /* ─── Load articles ─────────────────────────── */
-    async function cargarArticulos() {
-      try {
-        const usuario = await getUsuarioActual();
-        const esPersonal = usuario?.perfil?.rol === 'personal';
+    /* ─── CRUD base ─────────────────────────────── */
+    const crud = crearCRUD({
+      tabla: 'wiki_articulos',
+      formId: 'editor-form',
+      tablaId: 'tabla-articulos',
+      formTituloId: 'form-titulo',
+      idInputId: 'articulo-id',
+      btnNuevoId: 'btn-nuevo-articulo',
+      btnGuardarId: 'btn-guardar',
+      btnCancelarId: 'btn-cancelar',
+      mensajeId: 'admin-mensaje',
+      paginacionId: 'paginacion-articulos',
+      limite: 20,
+      selectQuery: '*, wiki_categorias(nombre)',
+      orderBy: { columna: 'creado_en', direccion: 'desc' },
+      filtroPersonal: { columna: 'autor_id' },
+      nombreSingular: 'artículo',
+      nombrePlural: 'artículos',
 
-        let query = supabase
-          .from('wiki_articulos')
-          .select('*, wiki_categorias(nombre)')
-          .order('creado_en', { ascending: false });
+      cargarSelects: async () => {
+        await cargarCategorias();
+      },
 
-        if (esPersonal) {
-          query = query.eq('autor_id', usuario.id);
-        }
+      obtenerDataForm: () => ({
+        categoria_id: document.getElementById('form-categoria').value,
+        titulo: document.getElementById('form-titulo-input').value.trim(),
+        contenido: document.getElementById('form-contenido').value.trim(),
+        publicado: document.getElementById('form-publicado').checked
+      }),
 
-        const { data, error } = await query;
+      rellenarForm: (data) => {
+        document.getElementById('form-categoria').value = data.categoria_id || '';
+        document.getElementById('form-titulo-input').value = data.titulo || '';
+        document.getElementById('form-contenido').value = data.contenido || '';
+        document.getElementById('form-publicado').checked = data.publicado || false;
+      },
 
-        if (error) throw error;
+      limpiarForm: () => {
+        document.getElementById('form-categoria').value = '';
+        document.getElementById('form-titulo-input').value = '';
+        document.getElementById('form-contenido').value = '';
+        document.getElementById('form-publicado').checked = false;
+      },
 
-        if (!data || data.length === 0) {
-          tablaArticulos.innerHTML = '<tr><td colspan="5" class="empty-state">No hay artículos aún</td></tr>';
-          return;
-        }
+      validarForm: (data) => {
+        if (!data.categoria_id) return 'Debes seleccionar una categoría';
+        if (!data.titulo) return 'El título es obligatorio';
+        return null;
+      },
 
-        tablaArticulos.innerHTML = data.map(a => {
-          const titulo = sanitizar(a.titulo);
-          const categoria = a.wiki_categorias?.nombre
-            ? `<span class="badge badge-categoria">${sanitizar(a.wiki_categorias.nombre)}</span>`
-            : '—';
-          const estado = a.publicado
-            ? '<span class="badge badge-publicado">Publicado</span>'
-            : '<span class="badge badge-borrador">Borrador</span>';
-          const fecha = formatearFecha(a.creado_en);
-          return `<tr>
-            <td>${titulo}</td>
-            <td>${categoria}</td>
-            <td>${estado}</td>
-            <td>${fecha}</td>
-            <td>
-              <button class="btn btn-sm btn-primario btn-editar" data-id="${a.id}">Editar</button>
-              <button class="btn btn-sm btn-peligro btn-eliminar" data-id="${a.id}">Eliminar</button>
-            </td>
-          </tr>`;
-        }).join('');
-      } catch (err) {
-        console.error('Error al cargar artículos:', err);
-        tablaArticulos.innerHTML = '<tr><td colspan="5" class="empty-state error">Error al cargar los datos: ' + err.message + '</td></tr>';
-      }
-    }
-
-    /* ─── Show / Hide form ──────────────────────── */
-    function mostrarFormulario() {
-      editorForm.style.display = 'block';
-    }
-
-    function ocultarFormulario() {
-      editorForm.style.display = 'none';
-      formTitulo.textContent = 'Crear Artículo';
-      articuloId.value = '';
-      formCategoria.value = '';
-      formTituloInput.value = '';
-      formContenido.value = '';
-      formPublicado.checked = false;
-      modoEdicion = false;
-      articuloEditandoId = null;
-    }
-
-    /* ─── Nuevo artículo ────────────────────────── */
-    btnNuevo.addEventListener('click', () => {
-      ocultarFormulario();
-      modoEdicion = false;
-      mostrarFormulario();
-    });
-
-    /* ─── Cancelar ──────────────────────────────── */
-    btnCancelar.addEventListener('click', ocultarFormulario);
-
-    /* ─── Editar (event delegation) ─────────────── */
-    tablaArticulos.addEventListener('click', async (e) => {
-      const btnEditar = e.target.closest('.btn-editar');
-      if (!btnEditar) return;
-
-      const id = btnEditar.dataset.id;
-      try {
-        const { data, error } = await supabase
-          .from('wiki_articulos')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (error) throw error;
-        if (!data) throw new Error('Artículo no encontrado');
-
-        articuloId.value = data.id;
-        formCategoria.value = data.categoria_id || '';
-        formTituloInput.value = data.titulo || '';
-        formContenido.value = data.contenido || '';
-        formPublicado.checked = data.publicado || false;
-        modoEdicion = true;
-        articuloEditandoId = data.id;
-        formTitulo.textContent = 'Editar Artículo';
-        mostrarFormulario();
-      } catch (err) {
-        console.error('Error al cargar artículo:', err);
-        mostrarMensaje('Error al cargar el artículo: ' + err.message, 'error');
+      plantillaFila: (a) => {
+        const titulo = sanitizar(a.titulo);
+        const categoria = a.wiki_categorias?.nombre
+          ? `<span class="badge badge-categoria">${sanitizar(a.wiki_categorias.nombre)}</span>`
+          : '—';
+        const estado = a.publicado
+          ? '<span class="badge badge-publicado">Publicado</span>'
+          : '<span class="badge badge-borrador">Borrador</span>';
+        const fecha = formatearFecha(a.creado_en);
+        return `<tr>
+          <td>${titulo}</td>
+          <td>${categoria}</td>
+          <td>${estado}</td>
+          <td>${fecha}</td>
+          <td>
+            <button class="btn btn-sm btn-primario btn-editar" data-id="${a.id}">Editar</button>
+            <button class="btn btn-sm btn-peligro btn-eliminar" data-id="${a.id}">Eliminar</button>
+          </td>
+        </tr>`;
       }
     });
 
-    /* ─── Guardar ───────────────────────────────── */
-    btnGuardar.addEventListener('click', async () => {
-      try {
-        const categoria_id = formCategoria.value;
-        const titulo = formTituloInput.value.trim();
-        const contenido = formContenido.value.trim();
-        const publicado = formPublicado.checked;
-
-        if (!categoria_id) {
-          mostrarMensaje('Debes seleccionar una categoría', 'error');
-          return;
-        }
-        if (!titulo) {
-          mostrarMensaje('El título es obligatorio', 'error');
-          return;
-        }
-
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!modoEdicion) {
-          const { error } = await supabase
-            .from('wiki_articulos')
-            .insert({
-              categoria_id,
-              titulo,
-              contenido,
-              publicado,
-              autor_id: user.id
-            })
-            .select()
-            .single();
-
-          if (error) throw error;
-          mostrarMensaje('Artículo creado exitosamente', 'exito');
-        } else {
-          const { error } = await supabase
-            .from('wiki_articulos')
-            .update({
-              categoria_id,
-              titulo,
-              contenido,
-              publicado
-            })
-            .eq('id', articuloEditandoId);
-
-          if (error) throw error;
-          mostrarMensaje('Artículo actualizado exitosamente', 'exito');
-        }
-
-        ocultarFormulario();
-        await cargarArticulos();
-      } catch (err) {
-        console.error('Error al guardar artículo:', err);
-        mostrarMensaje('Error al guardar el artículo: ' + err.message, 'error');
-      }
-    });
-
-    /* ─── Eliminar (event delegation) ───────────── */
-    tablaArticulos.addEventListener('click', async (e) => {
-      const btnEliminar = e.target.closest('.btn-eliminar');
-      if (!btnEliminar) return;
-
-      const id = btnEliminar.dataset.id;
-      if (!confirm('¿Seguro que deseas eliminar este artículo?')) return;
-
-      try {
-        const { error } = await supabase
-          .from('wiki_articulos')
-          .delete()
-          .eq('id', id);
-
-        if (error) throw error;
-        mostrarMensaje('Artículo eliminado exitosamente', 'exito');
-        await cargarArticulos();
-      } catch (err) {
-        console.error('Error al eliminar artículo:', err);
-        mostrarMensaje('Error al eliminar el artículo: ' + err.message, 'error');
-      }
-    });
-
-    /* ─── Init ──────────────────────────────────── */
-    await cargarCategorias();
-    await cargarArticulos();
+    await crud.init();
   </script>
 </body>
 

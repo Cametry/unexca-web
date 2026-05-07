@@ -20,6 +20,7 @@
   <div id="spinner" class="spinner" style="display:none;">
     <div class="spinner-circle"></div>
   </div>
+  <div id="toast-contenedor"></div>
 
   <div id="navbar-placeholder"></div>
 
@@ -103,6 +104,7 @@
             <tbody id="tabla-preguntas"></tbody>
           </table>
         </div>
+        <div id="paginacion-preguntas"></div>
       </div>
     </main>
   </div>
@@ -112,268 +114,104 @@
   <script type="module">
     await requiereAutenticacion('personal');
 
-    import { requiereAutenticacion, getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
-    import { supabase } from '/assets/js/supabase-client.js';
+    import { requiereAutenticacion, actualizarNavbar } from '/assets/js/auth.js';
     import { initAdmin } from '/admin/admin.js';
     import { sanitizar } from '/assets/js/utils.js';
+    import { crearCRUD } from '/admin/crud-base.js';
 
     await initAdmin();
 
-    /* ─── State ─────────────────────────────────── */
-    let modoEdicion = false;
-    let preguntaEditandoId = null;
+    const crud = crearCRUD({
+      tabla: 'faq_preguntas',
+      formId: 'editor-form',
+      tablaId: 'tabla-preguntas',
+      formTituloId: 'form-titulo',
+      idInputId: 'pregunta-id',
+      btnNuevoId: 'btn-nueva-pregunta',
+      btnGuardarId: 'btn-guardar',
+      btnCancelarId: 'btn-cancelar',
+      mensajeId: 'admin-mensaje',
+      paginacionId: 'paginacion-preguntas',
+      limite: 20,
+      selectQuery: '*, faq_categorias(nombre)',
+      orderBy: { columna: 'creado_en', direccion: 'desc' },
+      filtroPersonal: { columna: 'autor_id' },
+      nombreSingular: 'pregunta',
+      nombrePlural: 'preguntas',
 
-    /* ─── DOM references ────────────────────────── */
-    const $ = (id) => document.getElementById(id);
-    const editorForm = $('editor-form');
-    const formTitulo = $('form-titulo');
-    const preguntaId = $('pregunta-id');
-    const formCategoria = $('form-categoria');
-    const formPregunta = $('form-pregunta');
-    const formRespuesta = $('form-respuesta');
-    const formOrden = $('form-orden');
-    const formPublicado = $('form-publicado');
-    const btnGuardar = $('btn-guardar');
-    const btnCancelar = $('btn-cancelar');
-    const btnNueva = $('btn-nueva-pregunta');
-    const tablaPreguntas = $('tabla-preguntas');
-    const mensaje = $('admin-mensaje');
-
-    /* ─── Message helper ────────────────────────── */
-    function mostrarMensaje(texto, tipo) {
-      mensaje.textContent = texto;
-      mensaje.className = 'admin-mensaje ' + tipo;
-      setTimeout(() => {
-        mensaje.className = 'admin-mensaje';
-        mensaje.textContent = '';
-      }, 3000);
-    }
-
-    /* ─── Load categories ───────────────────────── */
-    async function cargarCategorias() {
-      try {
+      cargarSelects: async () => {
+        const { supabase } = await import('/assets/js/supabase-client.js');
         const { data, error } = await supabase
           .from('faq_categorias')
           .select('id, nombre')
           .order('orden');
-
         if (error) throw error;
-
-        formCategoria.innerHTML = '<option value="">Seleccionar categoría...</option>';
+        const sel = document.getElementById('form-categoria');
+        sel.innerHTML = '<option value="">Seleccionar categoría...</option>';
         if (data) {
           data.forEach(cat => {
             const opt = document.createElement('option');
             opt.value = cat.id;
             opt.textContent = cat.nombre;
-            formCategoria.appendChild(opt);
+            sel.appendChild(opt);
           });
         }
-      } catch (err) {
-        console.error('Error al cargar categorías:', err);
-        mostrarMensaje('Error al cargar categorías: ' + err.message, 'error');
-      }
-    }
+      },
 
-    /* ─── Load questions ────────────────────────── */
-    async function cargarPreguntas() {
-      try {
-        const usuario = await getUsuarioActual();
-        const esPersonal = usuario?.perfil?.rol === 'personal';
+      obtenerDataForm: () => ({
+        categoria_id: document.getElementById('form-categoria').value,
+        pregunta: document.getElementById('form-pregunta').value.trim(),
+        respuesta: document.getElementById('form-respuesta').value.trim(),
+        orden: parseInt(document.getElementById('form-orden').value, 10) || 0,
+        publicado: document.getElementById('form-publicado').checked
+      }),
 
-        let query = supabase
-          .from('faq_preguntas')
-          .select('*, faq_categorias(nombre)')
-          .order('creado_en', { ascending: false });
+      rellenarForm: (data) => {
+        document.getElementById('form-categoria').value = data.categoria_id || '';
+        document.getElementById('form-pregunta').value = data.pregunta || '';
+        document.getElementById('form-respuesta').value = data.respuesta || '';
+        document.getElementById('form-orden').value = data.orden ?? 0;
+        document.getElementById('form-publicado').checked = data.publicado ?? true;
+      },
 
-        if (esPersonal) {
-          query = query.eq('autor_id', usuario.id);
-        }
+      limpiarForm: () => {
+        document.getElementById('form-categoria').value = '';
+        document.getElementById('form-pregunta').value = '';
+        document.getElementById('form-respuesta').value = '';
+        document.getElementById('form-orden').value = '0';
+        document.getElementById('form-publicado').checked = true;
+      },
 
-        const { data, error } = await query;
+      validarForm: (data) => {
+        if (!data.categoria_id) return 'Debes seleccionar una categoría';
+        if (!data.pregunta) return 'La pregunta es obligatoria';
+        if (!data.respuesta) return 'La respuesta es obligatoria';
+        return null;
+      },
 
-        if (error) throw error;
-
-        if (!data || data.length === 0) {
-          tablaPreguntas.innerHTML = '<tr><td colspan="5" class="empty-state">No hay preguntas aún</td></tr>';
-          return;
-        }
-
-        tablaPreguntas.innerHTML = data.map(p => {
-          const pregunta = sanitizar(p.pregunta.length > 60 ? p.pregunta.slice(0, 60) + '...' : p.pregunta);
-          const categoria = p.faq_categorias?.nombre
-            ? `<span class="badge badge-categoria">${sanitizar(p.faq_categorias.nombre)}</span>`
-            : '—';
-          const orden = p.orden ?? 0;
-          const estado = p.publicado
-            ? '<span class="badge badge-publicado">Publicado</span>'
-            : '<span class="badge badge-borrador">Borrador</span>';
-          return `<tr>
-            <td>${pregunta}</td>
-            <td>${categoria}</td>
-            <td>${orden}</td>
-            <td>${estado}</td>
-            <td>
-              <button class="btn btn-sm btn-primario btn-editar" data-id="${p.id}">Editar</button>
-              <button class="btn btn-sm btn-peligro btn-eliminar" data-id="${p.id}">Eliminar</button>
-            </td>
-          </tr>`;
-        }).join('');
-      } catch (err) {
-        console.error('Error al cargar preguntas:', err);
-        tablaPreguntas.innerHTML = '<tr><td colspan="5" class="empty-state error">Error al cargar los datos: ' + err.message + '</td></tr>';
-      }
-    }
-
-    /* ─── Show / Hide form ──────────────────────── */
-    function mostrarFormulario() {
-      editorForm.style.display = 'block';
-    }
-
-    function ocultarFormulario() {
-      editorForm.style.display = 'none';
-      formTitulo.textContent = 'Crear Pregunta';
-      preguntaId.value = '';
-      formCategoria.value = '';
-      formPregunta.value = '';
-      formRespuesta.value = '';
-      formOrden.value = '0';
-      formPublicado.checked = true;
-      modoEdicion = false;
-      preguntaEditandoId = null;
-    }
-
-    /* ─── Nueva pregunta ────────────────────────── */
-    btnNueva.addEventListener('click', () => {
-      ocultarFormulario();
-      modoEdicion = false;
-      mostrarFormulario();
-    });
-
-    /* ─── Cancelar ──────────────────────────────── */
-    btnCancelar.addEventListener('click', ocultarFormulario);
-
-    /* ─── Editar (event delegation) ─────────────── */
-    tablaPreguntas.addEventListener('click', async (e) => {
-      const btnEditar = e.target.closest('.btn-editar');
-      if (!btnEditar) return;
-
-      const id = btnEditar.dataset.id;
-      try {
-        const { data, error } = await supabase
-          .from('faq_preguntas')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (error) throw error;
-        if (!data) throw new Error('Pregunta no encontrada');
-
-        preguntaId.value = data.id;
-        formCategoria.value = data.categoria_id || '';
-        formPregunta.value = data.pregunta || '';
-        formRespuesta.value = data.respuesta || '';
-        formOrden.value = data.orden ?? 0;
-        formPublicado.checked = data.publicado ?? true;
-        modoEdicion = true;
-        preguntaEditandoId = data.id;
-        formTitulo.textContent = 'Editar Pregunta';
-        mostrarFormulario();
-      } catch (err) {
-        console.error('Error al cargar pregunta:', err);
-        mostrarMensaje('Error al cargar la pregunta: ' + err.message, 'error');
+      plantillaFila: (p) => {
+        const pregunta = sanitizar(p.pregunta.length > 60 ? p.pregunta.slice(0, 60) + '...' : p.pregunta);
+        const categoria = p.faq_categorias?.nombre
+          ? `<span class="badge badge-categoria">${sanitizar(p.faq_categorias.nombre)}</span>`
+          : '—';
+        const orden = p.orden ?? 0;
+        const estado = p.publicado
+          ? '<span class="badge badge-publicado">Publicado</span>'
+          : '<span class="badge badge-borrador">Borrador</span>';
+        return `<tr>
+          <td>${pregunta}</td>
+          <td>${categoria}</td>
+          <td>${orden}</td>
+          <td>${estado}</td>
+          <td>
+            <button class="btn btn-sm btn-primario btn-editar" data-id="${p.id}">Editar</button>
+            <button class="btn btn-sm btn-peligro btn-eliminar" data-id="${p.id}">Eliminar</button>
+          </td>
+        </tr>`;
       }
     });
 
-    /* ─── Guardar ───────────────────────────────── */
-    btnGuardar.addEventListener('click', async () => {
-      try {
-        const categoria_id = formCategoria.value;
-        const pregunta = formPregunta.value.trim();
-        const respuesta = formRespuesta.value.trim();
-        const orden = parseInt(formOrden.value, 10) || 0;
-        const publicado = formPublicado.checked;
-
-        if (!categoria_id) {
-          mostrarMensaje('Debes seleccionar una categoría', 'error');
-          return;
-        }
-        if (!pregunta) {
-          mostrarMensaje('La pregunta es obligatoria', 'error');
-          return;
-        }
-        if (!respuesta) {
-          mostrarMensaje('La respuesta es obligatoria', 'error');
-          return;
-        }
-
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!modoEdicion) {
-          const { error } = await supabase
-            .from('faq_preguntas')
-            .insert({
-              categoria_id,
-              pregunta,
-              respuesta,
-              orden,
-              publicado,
-              autor_id: user.id
-            })
-            .select()
-            .single();
-
-          if (error) throw error;
-          mostrarMensaje('Pregunta creada exitosamente', 'exito');
-        } else {
-          const { error } = await supabase
-            .from('faq_preguntas')
-            .update({
-              categoria_id,
-              pregunta,
-              respuesta,
-              orden,
-              publicado
-            })
-            .eq('id', preguntaEditandoId);
-
-          if (error) throw error;
-          mostrarMensaje('Pregunta actualizada exitosamente', 'exito');
-        }
-
-        ocultarFormulario();
-        await cargarPreguntas();
-      } catch (err) {
-        console.error('Error al guardar pregunta:', err);
-        mostrarMensaje('Error al guardar la pregunta: ' + err.message, 'error');
-      }
-    });
-
-    /* ─── Eliminar (event delegation) ───────────── */
-    tablaPreguntas.addEventListener('click', async (e) => {
-      const btnEliminar = e.target.closest('.btn-eliminar');
-      if (!btnEliminar) return;
-
-      const id = btnEliminar.dataset.id;
-      if (!confirm('¿Seguro que deseas eliminar esta pregunta?')) return;
-
-      try {
-        const { error } = await supabase
-          .from('faq_preguntas')
-          .delete()
-          .eq('id', id);
-
-        if (error) throw error;
-        mostrarMensaje('Pregunta eliminada exitosamente', 'exito');
-        await cargarPreguntas();
-      } catch (err) {
-        console.error('Error al eliminar pregunta:', err);
-        mostrarMensaje('Error al eliminar la pregunta: ' + err.message, 'error');
-      }
-    });
-
-    /* ─── Init ──────────────────────────────────── */
-    await cargarCategorias();
-    await cargarPreguntas();
+    await crud.init();
   </script>
 </body>
 

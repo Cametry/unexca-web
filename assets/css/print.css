@@ -1,0 +1,125 @@
+/* ─────────────────────────────────────────────
+ * print.css — Estilos para impresión
+ * Portal UNEXCA
+ * Oculta elementos no esenciales y optimiza
+ * el contenido para papel.
+ * ───────────────────────────────────────────── */
+
+@media print {
+
+  /* ── Resetear fondo, sombras, colores ── */
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* ── Ocultar elementos no imprimibles ── */
+  nav,
+  .navbar,
+  .navbar-drawer,
+  .admin-sidebar,
+  .admin-layout,
+  footer,
+  .footer,
+  .btn,
+  .editor-acciones,
+  .admin-header,
+  .admin-acciones,
+  .paginacion,
+  #toast-contenedor,
+  .alerta,
+  .alerta-error,
+  .alerta-exito,
+  .alerta-info,
+  .auth-pagina .btn,
+  .auth-card .btn,
+  .form-grupo .btn,
+  .hero-acciones,
+  .noticia-acciones,
+  .wiki-acciones,
+  .doc-card-footer,
+  .evento-card .btn,
+  .acordeon-header,
+  .filtros-noticias,
+  .filtro-categoria,
+  .miga-pan,
+  iframe,
+  video,
+  .no-print {
+    display: none !important;
+  }
+
+  /* ── Mostrar URLs después de enlaces ── */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #555 !important;
+  }
+
+  a[href^="#"]::after,
+  a[href^="javascript"]::after {
+    content: "";
+  }
+
+  /* ── Ajustes de página ── */
+  @page {
+    margin: 2cm;
+  }
+
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+    color: #000;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    page-break-after: avoid;
+  }
+
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  p,
+  li,
+  blockquote {
+    orphans: 3;
+    widows: 3;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th,
+  td {
+    border: 1px solid #000;
+    padding: 4pt 8pt;
+    text-align: left;
+  }
+
+  /* ── Tarjetas y contenedores ── */
+  .card,
+  .evento-card,
+  .doc-card,
+  .noticia-articulo,
+  .wiki-articulo,
+  .auth-card {
+    border: 1px solid #ccc !important;
+    page-break-inside: avoid;
+  }
+
+  /* ── Forzar saltos de página ── */
+  .page-break {
+    page-break-before: always;
+  }
+}

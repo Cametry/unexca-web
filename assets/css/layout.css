@@ -735,45 +735,6 @@ main {
   font-size: var(--texto-sm);
 }
 
-.navbar-hamburguesa {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-.navbar-hamburguesa span {
-  display: block;
-  width: 25px;
-  height: 3px;
-  background: var(--color-blanco);
-  margin: 5px 0;
-  transition: transform var(--t), opacity var(--t);
-}
-
-.navbar-menu--abierto {
-  transform: translateX(0);
-}
-
-.navbar-contenido {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 100%;
-}
-
-.navbar-logo {
-  display: flex;
-  align-items: center;
-}
-
-.navbar-acciones {
-  display: flex;
-  align-items: center;
-  gap: var(--s4);
-}
-
 /* ─── LEGACY: Botones de redes sociales ─── */
 .btn-red-social {
   display: inline-flex;
@@ -791,32 +752,4 @@ main {
 .btn-red-social:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
-}
-
-.redes-sociales {
-  display: flex;
-  gap: var(--s4);
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-/* ─── LEGACY: Botones sobre fondos oscuros ─── */
-.navbar .btn-secundario {
-  color: var(--color-blanco);
-  border-color: var(--color-blanco);
-}
-
-.navbar .btn-secundario:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--color-blanco);
-}
-
-.hero .btn-secundario {
-  color: var(--color-blanco);
-  border-color: var(--color-blanco);
-}
-
-.hero .btn-secundario:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--color-blanco);
 }

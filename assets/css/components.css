@@ -957,22 +957,8 @@
   line-height: 1.6;
 }
 
-.card-imagen {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: var(--radio-md) var(--radio-md) 0 0;
-  margin: calc(-1 * var(--s6)) calc(-1 * var(--s6)) var(--s4);
-}
-
 .card-body {
   padding: 0;
-}
-
-.card-footer {
-  padding: var(--s4) var(--s6) 0;
-  border-top: 1px solid var(--color-borde);
-  margin-top: var(--s4);
 }
 
 /* ─── LEGACY: Grilla de tarjetas ─── */
@@ -1394,52 +1380,6 @@
   border-color: var(--color-primario);
 }
 
-.card--noticia {
-  text-decoration: none;
-  color: var(--color-texto-base);
-  display: flex;
-  flex-direction: column;
-  transition: all var(--t);
-  overflow: hidden;
-}
-
-.card--noticia:hover {
-  text-decoration: none;
-}
-
-.card--noticia .card-body {
-  padding: 0 var(--s6) var(--s6);
-}
-
-.card--noticia .badge-categoria {
-  display: inline-block;
-  margin-bottom: var(--s2);
-}
-
-.card--noticia .card-fecha {
-  display: block;
-  margin-top: var(--s3);
-  font-size: var(--texto-xs);
-  color: var(--color-texto-muted);
-}
-
-.card-imagen-placeholder {
-  width: 100%;
-  height: 180px;
-  background-color: var(--color-primario-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radio-md) var(--radio-md) 0 0;
-  margin: calc(-1 * var(--s6)) calc(-1 * var(--s6)) var(--s4);
-}
-
-.card-imagen-placeholder .badge {
-  background: rgba(255, 255, 255, 0.2);
-  color: var(--color-blanco);
-  font-size: var(--texto-sm);
-  padding: var(--s2) var(--s5);
-}
 
 .noticia-articulo {
   padding: var(--s8) 0;
@@ -1665,14 +1605,6 @@
   .evento-contenido {
     padding: var(--s6) var(--s8);
   }
-}
-
-/* ─── LEGACY: Hero acciones ─── */
-.hero-acciones {
-  display: flex;
-  gap: var(--s4);
-  justify-content: center;
-  flex-wrap: wrap;
 }
 
 /* ───── DOCUMENTOS ───── */

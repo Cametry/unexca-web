@@ -20,6 +20,7 @@
   <div id="spinner" class="spinner" style="display:none;">
     <div class="spinner-circle"></div>
   </div>
+  <div id="toast-contenedor"></div>
 
   <div id="navbar-placeholder"></div>
 
@@ -113,6 +114,7 @@
             <tbody id="tabla-documentos"></tbody>
           </table>
         </div>
+        <div id="paginacion-documentos"></div>
       </div>
     </main>
   </div>
@@ -122,249 +124,89 @@
   <script type="module">
     await requiereAutenticacion('personal');
 
-    import { requiereAutenticacion, getUsuarioActual, actualizarNavbar } from '/assets/js/auth.js';
-    import { supabase } from '/assets/js/supabase-client.js';
+    import { requiereAutenticacion, actualizarNavbar } from '/assets/js/auth.js';
     import { initAdmin } from '/admin/admin.js';
     import { sanitizar } from '/assets/js/utils.js';
+    import { crearCRUD } from '/admin/crud-base.js';
 
     await initAdmin();
 
-    /* ─── State ─────────────────────────────────── */
-    let modoEdicion = false;
-    let documentoEditandoId = null;
+    const crud = crearCRUD({
+      tabla: 'documentos',
+      formId: 'editor-form',
+      tablaId: 'tabla-documentos',
+      formTituloId: 'form-titulo',
+      idInputId: 'documento-id',
+      btnNuevoId: 'btn-nuevo-documento',
+      btnGuardarId: 'btn-guardar',
+      btnCancelarId: 'btn-cancelar',
+      mensajeId: 'admin-mensaje',
+      paginacionId: 'paginacion-documentos',
+      limite: 20,
+      selectQuery: '*',
+      orderBy: { columna: 'creado_en', direccion: 'desc' },
+      filtroPersonal: { columna: 'subido_por' },
+      nombreSingular: 'documento',
+      nombrePlural: 'documentos',
 
-    /* ─── DOM references ────────────────────────── */
-    const $ = (id) => document.getElementById(id);
-    const editorForm = $('editor-form');
-    const formTitulo = $('form-titulo');
-    const documentoId = $('documento-id');
-    const formTituloInput = $('form-titulo-input');
-    const formDescripcion = $('form-descripcion');
-    const formArchivoUrl = $('form-archivo-url');
-    const formCategoria = $('form-categoria');
-    const formCarrera = $('form-carrera');
-    const formAcceso = $('form-acceso');
-    const btnGuardar = $('btn-guardar');
-    const btnCancelar = $('btn-cancelar');
-    const btnNuevo = $('btn-nuevo-documento');
-    const tablaDocumentos = $('tabla-documentos');
-    const mensaje = $('admin-mensaje');
+      obtenerDataForm: () => ({
+        titulo: document.getElementById('form-titulo-input').value.trim(),
+        descripcion: document.getElementById('form-descripcion').value.trim(),
+        archivo_url: document.getElementById('form-archivo-url').value.trim(),
+        categoria: document.getElementById('form-categoria').value.trim(),
+        carrera: document.getElementById('form-carrera').value.trim(),
+        acceso_minimo: document.getElementById('form-acceso').value
+      }),
 
-    /* ─── Message helper ────────────────────────── */
-    function mostrarMensaje(texto, tipo) {
-      mensaje.textContent = texto;
-      mensaje.className = 'admin-mensaje ' + tipo;
-      setTimeout(() => {
-        mensaje.className = 'admin-mensaje';
-        mensaje.textContent = '';
-      }, 3000);
-    }
+      rellenarForm: (data) => {
+        document.getElementById('form-titulo-input').value = data.titulo || '';
+        document.getElementById('form-descripcion').value = data.descripcion || '';
+        document.getElementById('form-archivo-url').value = data.archivo_url || '';
+        document.getElementById('form-categoria').value = data.categoria || '';
+        document.getElementById('form-carrera').value = data.carrera || '';
+        document.getElementById('form-acceso').value = data.acceso_minimo || 'estudiante';
+      },
 
-    /* ─── Load documents ────────────────────────── */
-    async function cargarDocumentos() {
-      try {
-        const usuario = await getUsuarioActual();
-        const esPersonal = usuario?.perfil?.rol === 'personal';
+      limpiarForm: () => {
+        document.getElementById('form-titulo-input').value = '';
+        document.getElementById('form-descripcion').value = '';
+        document.getElementById('form-archivo-url').value = '';
+        document.getElementById('form-categoria').value = '';
+        document.getElementById('form-carrera').value = '';
+        document.getElementById('form-acceso').value = 'estudiante';
+      },
 
-        let query = supabase
-          .from('documentos')
-          .select('*')
-          .order('creado_en', { ascending: false });
+      validarForm: (data) => {
+        if (!data.titulo) return 'El título es obligatorio';
+        if (!data.archivo_url) return 'La URL del archivo es obligatoria';
+        if (!data.categoria) return 'La categoría es obligatoria';
+        return null;
+      },
 
-        if (esPersonal) {
-          query = query.eq('subido_por', usuario.id);
-        }
-
-        const { data, error } = await query;
-
-        if (error) throw error;
-
-        if (!data || data.length === 0) {
-          tablaDocumentos.innerHTML = '<tr><td colspan="5" class="empty-state">No hay documentos aún</td></tr>';
-          return;
-        }
-
-        tablaDocumentos.innerHTML = data.map(d => {
-          const titulo = sanitizar(d.titulo.length > 60 ? d.titulo.slice(0, 60) + '...' : d.titulo);
-          const categoria = `<span class="badge badge-categoria">${sanitizar(d.categoria)}</span>`;
-          const carrera = d.carrera ? sanitizar(d.carrera) : '—';
-          const badgeAcceso = {
-            publico: '<span class="badge badge-publicado">Público</span>',
-            estudiante: '<span class="badge badge-activo">Estudiante</span>',
-            personal: '<span class="badge badge-advertencia">Personal</span>',
-            admin: '<span class="badge badge-inactivo">Admin</span>'
-          }[d.acceso_minimo] || sanitizar(d.acceso_minimo);
-          return `<tr>
-            <td>${titulo}</td>
-            <td>${categoria}</td>
-            <td>${carrera}</td>
-            <td>${badgeAcceso}</td>
-            <td>
-              <button class="btn btn-sm btn-primario btn-editar" data-id="${d.id}">Editar</button>
-              <button class="btn btn-sm btn-peligro btn-eliminar" data-id="${d.id}">Eliminar</button>
-            </td>
-          </tr>`;
-        }).join('');
-      } catch (err) {
-        console.error('Error al cargar documentos:', err);
-        tablaDocumentos.innerHTML = '<tr><td colspan="5" class="empty-state error">Error al cargar los datos: ' + err.message + '</td></tr>';
-      }
-    }
-
-    /* ─── Show / Hide form ──────────────────────── */
-    function mostrarFormulario() {
-      editorForm.style.display = 'block';
-    }
-
-    function ocultarFormulario() {
-      editorForm.style.display = 'none';
-      formTitulo.textContent = 'Crear Documento';
-      documentoId.value = '';
-      formTituloInput.value = '';
-      formDescripcion.value = '';
-      formArchivoUrl.value = '';
-      formCategoria.value = '';
-      formCarrera.value = '';
-      formAcceso.value = 'estudiante';
-      modoEdicion = false;
-      documentoEditandoId = null;
-    }
-
-    /* ─── Nuevo documento ───────────────────────── */
-    btnNuevo.addEventListener('click', () => {
-      ocultarFormulario();
-      modoEdicion = false;
-      mostrarFormulario();
-    });
-
-    /* ─── Cancelar ──────────────────────────────── */
-    btnCancelar.addEventListener('click', ocultarFormulario);
-
-    /* ─── Editar (event delegation) ─────────────── */
-    tablaDocumentos.addEventListener('click', async (e) => {
-      const btnEditar = e.target.closest('.btn-editar');
-      if (!btnEditar) return;
-
-      const id = btnEditar.dataset.id;
-      try {
-        const { data, error } = await supabase
-          .from('documentos')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (error) throw error;
-        if (!data) throw new Error('Documento no encontrado');
-
-        documentoId.value = data.id;
-        formTituloInput.value = data.titulo || '';
-        formDescripcion.value = data.descripcion || '';
-        formArchivoUrl.value = data.archivo_url || '';
-        formCategoria.value = data.categoria || '';
-        formCarrera.value = data.carrera || '';
-        formAcceso.value = data.acceso_minimo || 'estudiante';
-        modoEdicion = true;
-        documentoEditandoId = data.id;
-        formTitulo.textContent = 'Editar Documento';
-        mostrarFormulario();
-      } catch (err) {
-        console.error('Error al cargar documento:', err);
-        mostrarMensaje('Error al cargar el documento: ' + err.message, 'error');
+      plantillaFila: (d) => {
+        const titulo = sanitizar(d.titulo.length > 60 ? d.titulo.slice(0, 60) + '...' : d.titulo);
+        const categoria = `<span class="badge badge-categoria">${sanitizar(d.categoria)}</span>`;
+        const carrera = d.carrera ? sanitizar(d.carrera) : '—';
+        const badgeAcceso = {
+          publico: '<span class="badge badge-publicado">Público</span>',
+          estudiante: '<span class="badge badge-activo">Estudiante</span>',
+          personal: '<span class="badge badge-advertencia">Personal</span>',
+          admin: '<span class="badge badge-inactivo">Admin</span>'
+        }[d.acceso_minimo] || sanitizar(d.acceso_minimo);
+        return `<tr>
+          <td>${titulo}</td>
+          <td>${categoria}</td>
+          <td>${carrera}</td>
+          <td>${badgeAcceso}</td>
+          <td>
+            <button class="btn btn-sm btn-primario btn-editar" data-id="${d.id}">Editar</button>
+            <button class="btn btn-sm btn-peligro btn-eliminar" data-id="${d.id}">Eliminar</button>
+          </td>
+        </tr>`;
       }
     });
 
-    /* ─── Guardar ───────────────────────────────── */
-    btnGuardar.addEventListener('click', async () => {
-      try {
-        const titulo = formTituloInput.value.trim();
-        const descripcion = formDescripcion.value.trim();
-        const archivo_url = formArchivoUrl.value.trim();
-        const categoria = formCategoria.value.trim();
-        const carrera = formCarrera.value.trim();
-        const acceso_minimo = formAcceso.value;
-
-        if (!titulo) {
-          mostrarMensaje('El título es obligatorio', 'error');
-          return;
-        }
-        if (!archivo_url) {
-          mostrarMensaje('La URL del archivo es obligatoria', 'error');
-          return;
-        }
-        if (!categoria) {
-          mostrarMensaje('La categoría es obligatoria', 'error');
-          return;
-        }
-
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!modoEdicion) {
-          const { error } = await supabase
-            .from('documentos')
-            .insert({
-              titulo,
-              descripcion,
-              archivo_url,
-              categoria,
-              carrera,
-              acceso_minimo,
-              subido_por: user.id
-            })
-            .select()
-            .single();
-
-          if (error) throw error;
-          mostrarMensaje('Documento creado exitosamente', 'exito');
-        } else {
-          const { error } = await supabase
-            .from('documentos')
-            .update({
-              titulo,
-              descripcion,
-              archivo_url,
-              categoria,
-              carrera,
-              acceso_minimo
-            })
-            .eq('id', documentoEditandoId);
-
-          if (error) throw error;
-          mostrarMensaje('Documento actualizado exitosamente', 'exito');
-        }
-
-        ocultarFormulario();
-        await cargarDocumentos();
-      } catch (err) {
-        console.error('Error al guardar documento:', err);
-        mostrarMensaje('Error al guardar el documento: ' + err.message, 'error');
-      }
-    });
-
-    /* ─── Eliminar (event delegation) ───────────── */
-    tablaDocumentos.addEventListener('click', async (e) => {
-      const btnEliminar = e.target.closest('.btn-eliminar');
-      if (!btnEliminar) return;
-
-      const id = btnEliminar.dataset.id;
-      if (!confirm('¿Seguro que deseas eliminar este documento?')) return;
-
-      try {
-        const { error } = await supabase
-          .from('documentos')
-          .delete()
-          .eq('id', id);
-
-        if (error) throw error;
-        mostrarMensaje('Documento eliminado exitosamente', 'exito');
-        await cargarDocumentos();
-      } catch (err) {
-        console.error('Error al eliminar documento:', err);
-        mostrarMensaje('Error al eliminar el documento: ' + err.message, 'error');
-      }
-    });
-
-    /* ─── Init ──────────────────────────────────── */
-    await cargarDocumentos();
+    await crud.init();
   </script>
 </body>
 
