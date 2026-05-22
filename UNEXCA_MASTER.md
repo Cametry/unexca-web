@@ -2121,25 +2121,25 @@ import { formatearFecha,
 | Item | Estado |
 |------|--------|
 | Documentación | ✅ Completa |
-| Repositorio GitHub | ⬜ Por crear |
-| Proyecto Supabase | ⬜ Por crear |
-| Schema SQL | ⬜ Por ejecutar |
-| Estructura de carpetas | ⬜ Por crear |
-| `base.css` | ⬜ Por crear |
-| `layout.css` | ⬜ Por crear |
-| `components.css` | ⬜ Por crear |
-| `supabase-client.js` | ⬜ Por crear |
-| `auth.js` | ⬜ Por crear |
-| `utils.js` | ⬜ Por crear |
-| Login / Registro | ⬜ Por crear |
-| Módulo Wiki | ⬜ Por crear |
-| Módulo FAQ | ⬜ Por crear |
-| Módulo Noticias | ⬜ Por crear |
-| Módulo Documentos | ⬜ Por crear |
-| Módulo Calendario | ⬜ Por crear |
-| Panel Admin | ⬜ Por crear |
-| Página de inicio | ⬜ Por crear |
-| Despliegue en Vercel/Netlify | ⬜ Por hacer |
+| Repositorio GitHub | ✅ Completa |
+| Proyecto Supabase | ✅ Completa |
+| Schema SQL | ✅ Completa |
+| Estructura de carpetas | ✅ Completa |
+| `base.css` | ✅ Completa |
+| `layout.css` | ✅ Completa |
+| `components.css` | ✅ Completa |
+| `supabase-client.js` | ✅ Completa |
+| `auth.js` | ✅ Completa |
+| `utils.js` | ✅ Completa |
+| Login / Registro | ✅ Completa |
+| Módulo Wiki | ✅ Completa |
+| Módulo FAQ | ✅ Completa |
+| Módulo Noticias | ✅ Completa |
+| Módulo Documentos | ✅ Completa |
+| Módulo Calendario | ✅ Completa |
+| Panel Admin | ✅ Completa |
+| Página de inicio | ✅ Completa |
+| Despliegue en Vercel/Netlify | ✅ Completa |
 
 ### Orden de construcción recomendado
 

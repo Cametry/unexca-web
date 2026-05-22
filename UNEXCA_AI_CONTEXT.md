@@ -1246,34 +1246,34 @@ FASE 8 — QA y despliegue
 
 ```yaml
 completado:
-  - documentacion\\\_maestra: true
-  - esquema\\\_db\\\_definido: true
-  - paleta\\\_colores\\\_definida: true
-  - stack\\\_definido: true
+  - documentacion\\_maestra: true
+  - esquema\\_db\\_definido: true
+  - paleta\\_colores\\_definida: true
+  - stack\\_definido: true
 
 pendiente:
-  - supabase\\\_proyecto\\\_creado: false
-  - sql\\\_ejecutado: false
-  - repositorio\\\_github: false
-  - carpetas\\\_creadas: false
-  - base\\\_css: false
-  - layout\\\_css: false
-  - components\\\_css: false
-  - supabase\\\_client\\\_js: false
-  - auth\\\_js: false
-  - utils\\\_js: false
-  - navbar\\\_html: false
-  - footer\\\_html: false
-  - index\\\_html: false
-  - auth\\\_login: false
-  - auth\\\_registro: false
-  - wiki\\\_completo: false
-  - faq\\\_completo: false
-  - noticias\\\_completo: false
-  - documentos\\\_completo: false
-  - calendario\\\_completo: false
-  - admin\\\_completo: false
-  - deploy\\\_vercel\\\_netlify: false
+  - supabase\\_proyecto\\_creado: true
+  - sql\\_ejecutado: true
+  - repositorio\\_github: true
+  - carpetas\\_creadas: true
+  - base\\_css: true
+  - layout\\_css: true
+  - components\\_css: true
+  - supabase\\_client\\_js: true
+  - auth\\_js: true
+  - utils\\_js: true
+  - navbar\\_html: true
+  - footer\\_html: true
+  - index\\_html: true
+  - auth\\_login: true
+  - auth\\_registro: true
+  - wiki\\_completo: true
+  - faq\\_completo: true
+  - noticias\\_completo: true
+  - documentos\\_completo: true
+  - calendario\\_completo: true
+  - admin\\_completo: true
+  - deploy\\_vercel\\_netlify: true
 ```
 
 \---
